@@ -9,5 +9,7 @@ urlpatterns = [
     path("register", views.register, name="register"),
     path("logout", views.logout_view, name="logout"),
     path("sync", views.sync, name="sync"),
-    path("team", views.team, name="team")
+    path("team", views.team, name="team"),
+    path("sync/season", views.sync_season, name="sync_season"),
+
 ]

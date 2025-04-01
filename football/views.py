@@ -74,3 +74,9 @@ def sync(request):
 def team(request):
     teams = Team.objects.all().values()
     return JsonResponse(list(teams), safe=False)
+
+
+def sync_season(request):
+    sync_service = SyncService()
+    sync_service.sync_season()
+    return HttpResponse("Season Sync Done!")
