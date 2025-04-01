@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
+from .models import Team
+
+from football.sync_service import SyncService
 
 
 # Create your views here.
@@ -60,3 +63,14 @@ def logout_view(request):
 
 def index(request):
     return render(request, "football/home.html")
+
+
+def sync(request):
+    sync_service = SyncService()
+    sync_service.sync_teams()
+    return HttpResponse("Sync Done!")
+
+
+def team(request):
+    teams = Team.objects.all().values()
+    return JsonResponse(list(teams), safe=False)
