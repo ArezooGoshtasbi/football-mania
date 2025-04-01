@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Football Mania{% endblock %}</title>
+        <link href="{% static 'football/auth.css' %}" rel="stylesheet">
+        <link href="{% static 'football/navbar.css' %}" rel="stylesheet">
+        <link href="{% static 'football/home.css' %}" rel="stylesheet">
+      </head>
+      <body>
+        <header>
+          <nav class="navbar">
+            <div class="navbar-left">
+              <a href="{% url 'index' %}" class="logo">
+                <span>FOOTBALL MANIA</span>
+              </a>
+            </div>
+            <div class="navbar-right">
+              <a href="{% url 'index' %}">Home</a>
+              <a href="#">Predict Matches</a>
+              
+              {% if user.is_authenticated %}
+                <span class="username">Hi, {{ user.username }}</span>
+                <a href="{% url 'logout' %}">Logout</a>
+              {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+              {% endif %}
+            </div>
+          </nav>
+        </header>
+        <main>
+          {% block body %}{% endblock %}
+        </main>
+      </body>
+      
+</html>

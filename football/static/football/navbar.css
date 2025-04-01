@@ -1,0 +1,41 @@
+.navbar {
+    background-color: #228B22;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    font-family: 'Segoe UI', sans-serif;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 1.2rem;
+    font-weight: 500;
+  }
+  
+  .navbar a:hover {
+    text-decoration: underline;
+  }
+  
+  .navbar-left .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+    margin-right: 10px;
+  }
+  
+  .username {
+    margin-left: 1.2rem;
+    font-weight: bold;
+  }
+  
