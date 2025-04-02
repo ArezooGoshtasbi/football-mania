@@ -82,3 +82,15 @@ class ScheduledTask(models.Model):
 
     def __str__(self):
         return f"{self.execution_date} - {self.status}"
+    
+
+class Player(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=100)
+    date_of_birth = models.DateField(null=True, blank=True)
+    nationality = models.CharField(max_length=50, null=True,blank=True)
+    position = models.CharField(max_length=50, null=True, blank=True)
+    current_team = models.ForeignKey(Team, related_name="player", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.name} ({self.position})"

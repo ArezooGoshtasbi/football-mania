@@ -1,6 +1,6 @@
 import requests
 from datetime import datetime
-from football.models import Team, Season, Match
+from football.models import Team, Season, Match, Player
 
 
 API_KEY = "7bf205ab38904c538d9c47021517f75a"
@@ -15,7 +15,7 @@ class SyncService:
     def __init__(self):
         pass
 
-    def sync_teams(self):
+    def sync_teams_and_players(self):
         url = base_url + "/competitions/PD/teams"
         response = requests.get(url, headers=headers)
         print(f"Responce recived {response.status_code}")
@@ -23,7 +23,10 @@ class SyncService:
         if response.status_code == 200:
             data = response.json()
             for team in data['teams']:
-                self.save_team(team)
+                db_team = self.save_team(team)
+                squad = team.get("squad",[])
+                for player in squad:
+                    self.save_player(player, db_team)
         else:
             print("Error:", response.status_code)
     
@@ -36,7 +39,7 @@ class SyncService:
 
         #TO DO raise error if any of the feilds were empty
 
-        created = Team.objects.get_or_create(
+        db_team, created = Team.objects.get_or_create(
             name=name,
             id = id,    
             short_name = short_name,
@@ -46,6 +49,40 @@ class SyncService:
             print(f"Created: {name}")
         else:
             print(f"Already exists: {name}")
+        
+        return db_team
+
+
+    def save_player(self, player_data, team):
+        player_id = player_data.get("id")
+        name = player_data.get("name")
+        date_of_birth = player_data.get("dateOfBirth")
+        nationality = player_data.get("nationality")
+        position = player_data.get("position")
+
+        if date_of_birth:
+            date_of_birth = datetime.fromisoformat(date_of_birth).date()
+
+        if not player_id or not name:
+            print("Skipping player with missing ID or name")
+            return
+        
+        player, created = Player.objects.update_or_create(
+            id=player_id,
+            defaults={
+                "name": name,
+                "date_of_birth": date_of_birth,
+                "nationality": nationality,
+                "position": position,
+                "current_team": team
+            }
+        )
+        
+        if created:
+            print(f"Create player: {name}")
+
+        else:
+            print(f"Updated player: {name}")    
 
 
     def sync_season(self):
@@ -118,7 +155,7 @@ class SyncService:
         away_team = Team.objects.get(id=match["awayTeam"]["id"])
         print(away_team)
         matchday = match["matchday"]
-        utc_date = match["utcDate"]
+        utc_date = datetime.fromisoformat(match["utcDate"].replace("Z", "+00:00"))
         status = match["status"]
         score = match["score"]
         if score is not None:
@@ -129,18 +166,21 @@ class SyncService:
 
         # TODO raise error if any of the feilds were empty
 
-        created = Match.objects.get_or_create(
-            id=id,    
-            season=season,
-            home_team=home_team,
-            away_team=away_team,
-            matchday=matchday,
-            utc_date=utc_date,
-            status=status,
-            home_score=home_score,
-            away_score=away_score,
-            updated_at=updated_at
-        )  
+        match, created = Match.objects.update_or_create(
+            id=id,
+            defaults={
+                'season': season,
+                'home_team': home_team,
+                'away_team': away_team,
+                'matchday': matchday,
+                'utc_date': utc_date,
+                'status': status,
+                'home_score': home_score,
+                'away_score': away_score,
+                'updated_at': updated_at
+            }
+        )
+  
 
         if created:
             print(f"Match created: {id}")

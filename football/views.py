@@ -67,7 +67,7 @@ def index(request):
 
 def sync(request):
     sync_service = SyncService()
-    sync_service.sync_teams()
+    sync_service.sync_teams_and_players()
     season = sync_service.sync_season()
     if season is not None:
         sync_service.sync_matches("2025-05-15", "2025-05-25")
