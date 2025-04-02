@@ -1,6 +1,7 @@
 import requests
 from datetime import datetime
-from football.models import Team, Season
+from football.models import Team, Season, Match
+
 
 API_KEY = "7bf205ab38904c538d9c47021517f75a"
 
@@ -22,27 +23,29 @@ class SyncService:
         if response.status_code == 200:
             data = response.json()
             for team in data['teams']:
-                name = team["name"]
-                short_name = team.get("tla", "")
-                logo_url = team.get("crest", "")
-                id = team.get("id")
-
-                #TO DO raise error if any of the feilds were empty
-
-                created = Team.objects.get_or_create(
-                    name=name,
-                    defaults={
-                        "id": id,    
-                        "short_name": short_name,
-                        "logo_url": logo_url
-                    }
-                )
-                if created:
-                    print(f"Created: {name}")
-                else:
-                    print(f"Already exists: {name}")    
+                self.save_team(team)
         else:
-            print("Error:", response.status_code)    
+            print("Error:", response.status_code)
+    
+
+    def save_team(self, team):
+        name = team["name"]
+        short_name = team.get("tla", "")
+        logo_url = team.get("crest", "")
+        id = team.get("id")
+
+        #TO DO raise error if any of the feilds were empty
+
+        created = Team.objects.get_or_create(
+            name=name,
+            id = id,    
+            short_name = short_name,
+            logo_url = logo_url
+        )
+        if created:
+            print(f"Created: {name}")
+        else:
+            print(f"Already exists: {name}")
 
 
     def sync_season(self):
@@ -50,51 +53,97 @@ class SyncService:
         response = requests.get(url, headers=headers)
         print(f"Responce recived {response.status_code}")
 
+        season = None
+
         if response.status_code == 200:
             data = response.json()
             # current season
-            self.save_season(data.get("currentSeason"), label="Current")
-            # next season (optional and may be null)
-            next_season_data = data.get("seasons", [])
-            if next_season_data:
-                next_candidates = [s for s in next_season_data if s.get("startDate") > data.get("currentSeason", {}).get("endDate")]
-                if next_candidates:
-                    self.save_season(next_candidates[0], label="Next")
+            season = self.save_season(data.get("currentSeason"))
         else:
             print("Failed to fetch season data:", response.status_code)
 
+        return season
 
-    def save_season(self, season_data, label=""):
+
+    def save_season(self, season_data):
         if not season_data:
-            print(f"No {label} season data found.")
+            print("No Season data found.")
             return
 
         start_date = season_data.get("startDate")
         end_date = season_data.get("endDate")
-        winner_data = season_data.get("winner")
+        id = season_data.get("id")
 
-        if not start_date or not end_date:
-            print(f"Error: {label} Season start or end date is missing.")
+        if not start_date or not end_date or not id:
+            print("Error: Season start or end date is missing.")
             return
 
         start_date = datetime.fromisoformat(start_date)
         end_date = datetime.fromisoformat(end_date)
 
-        winner_team = None
-        if winner_data:
-            winner_id = winner_data.get("id")
-            winner_team = Team.objects.filter(id=winner_id).first()
-
-        created = Season.objects.get_or_create(
+        season ,created = Season.objects.get_or_create(
             start_date=start_date,
             end_date=end_date,
-            defaults={"winner": winner_team}
+            id=id
         )
+
         if created:
-            print(f"{label} Season created: {start_date.date()} to {end_date.date()}")
+            print(f"Season created: {start_date.date()} to {end_date.date()}")
         else:
-            print(f"{label} Season already exists: {start_date.date()} to {end_date.date()}")
+            print(f"Season already exists: {start_date.date()} to {end_date.date()}")
+
+        return season
 
 
-            
+    def sync_matches(self, dateFrom, dateTo):
+        url = base_url + f"/matches?competitions=2014&dateFrom={dateFrom}&dateTo={dateTo}"
+        response = requests.get(url, headers=headers)
+        print(f"Responce recived {response.status_code}")
+
+        if response.status_code == 200:
+            data = response.json()
+            for match in data['matches']:
+                self.save_match(match)
+        else:
+            print("Error:", response.status_code)
+    
+
+    def save_match(self, match):
+        id = match["id"]
+        print(match["season"]["id"])
+        season = Season.objects.get(id=match["season"]["id"])
+        print(season)
+        home_team = Team.objects.get(id=match["homeTeam"]["id"])
+        print(home_team)
+        away_team = Team.objects.get(id=match["awayTeam"]["id"])
+        print(away_team)
+        matchday = match["matchday"]
+        utc_date = match["utcDate"]
+        status = match["status"]
+        score = match["score"]
+        if score is not None:
+            home_score = match["score"]["fullTime"]["home"]
+            away_score = match["score"]["fullTime"]["away"]
+        updated_at = datetime.now()
+        
+
+        # TODO raise error if any of the feilds were empty
+
+        created = Match.objects.get_or_create(
+            id=id,    
+            season=season,
+            home_team=home_team,
+            away_team=away_team,
+            matchday=matchday,
+            utc_date=utc_date,
+            status=status,
+            home_score=home_score,
+            away_score=away_score,
+            updated_at=updated_at
+        )  
+
+        if created:
+            print(f"Match created: {id}")
+        else:
+            print(f"Match already exists: {id}")
 

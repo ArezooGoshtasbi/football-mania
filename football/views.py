@@ -68,15 +68,14 @@ def index(request):
 def sync(request):
     sync_service = SyncService()
     sync_service.sync_teams()
+    season = sync_service.sync_season()
+    if season is not None:
+        sync_service.sync_matches("2025-05-15", "2025-05-25")
+    # sync player
+    # ...
     return HttpResponse("Sync Done!")
 
 
 def team(request):
     teams = Team.objects.all().values()
     return JsonResponse(list(teams), safe=False)
-
-
-def sync_season(request):
-    sync_service = SyncService()
-    sync_service.sync_season()
-    return HttpResponse("Season Sync Done!")
