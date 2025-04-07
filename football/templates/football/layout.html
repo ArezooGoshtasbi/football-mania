@@ -12,12 +12,12 @@
         <header>
           <nav class="navbar">
             <div class="navbar-left">
-              <a href="{% url 'index' %}" class="logo">
+              <a href="{% url 'home' %}" class="logo">
                 <span>FOOTBALL MANIA</span>
               </a>
             </div>
             <div class="navbar-right">
-              <a href="{% url 'index' %}">Home</a>
+              <a href="{% url 'home' %}">Home</a>
               <a href="#">Predict Matches</a>
               
               {% if user.is_authenticated %}

@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from .models import Team
+from .models import Team, Standing
 
 from football.sync_service import SyncService
 
@@ -24,7 +24,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect("index")
+            return redirect("home")
         else:
             messages.error(request, "Invalid password.")
             return render(request, "football/login.html")
@@ -48,21 +48,29 @@ def register(request):
             messages.error(request, "Username already taken.")    
             return render(request, "football/register.html")
         login(request, user)
-        return redirect("index")
+        return redirect("home")
     return render(request, "football/register.html")
 
 
 @login_required
 def home(request):
-    return render(request, "football/home.html")
+    standings = Standing.objects.all().order_by("position")
+    print("🏠 Home view is running...")
 
+    return render(request, "football/home.html", {
+        "standings": standings
+    })
+    
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("index"))
+    return HttpResponseRedirect(reverse("home"))
 
-def index(request):
-    return render(request, "football/home.html")
+def home(request):
+    standings = Standing.objects.all().order_by("position")
+    return render(request, "football/home.html", {
+        "standings": standings
+    })
 
 
 def sync(request):
