@@ -79,3 +79,28 @@ def sync(request):
 def team(request):
     teams = Team.objects.all().values()
     return JsonResponse(list(teams), safe=False)
+
+
+def sync_teams_from_file(request):
+    service = SyncService()
+    service.load_teams_from_file()
+    return HttpResponse("Teams and players loaded from file and synced.")
+
+
+def sync_season_from_file(request):
+    service = SyncService()
+    service.load_season_from_file()
+    return HttpResponse("Season synced from file.")
+
+
+def sync_matches_from_file(request):
+    service = SyncService()
+    service.load_matches_from_file()
+    return HttpResponse("Matches  synced from file.")
+
+
+def sync_standings_from_file(request):
+    service = SyncService()
+    service.load_standings_from_file()
+    return HttpResponse("Standings  synced from file.")
+

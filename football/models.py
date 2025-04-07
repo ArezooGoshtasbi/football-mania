@@ -38,14 +38,14 @@ class Match(models.Model):
 
 class Standing(models.Model):
     season = models.ForeignKey(Season, related_name="season_standings", on_delete=models.CASCADE)
-    team = models.OneToOneField(Team, on_delete=models.CASCADE) 
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
     position = models.IntegerField()
     played = models.IntegerField()
     wins = models.IntegerField()
     draws = models.IntegerField()
     losses = models.IntegerField()
     points = models.IntegerField()
-    form = models.CharField(max_length=9)
+    form = models.CharField(max_length=9, null=True, blank=True)
     goals_for = models.IntegerField()
     goals_against = models.IntegerField()
     goal_difference = models.IntegerField()

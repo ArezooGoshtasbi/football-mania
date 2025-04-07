@@ -1,6 +1,10 @@
 import requests
-from datetime import datetime
-from football.models import Team, Season, Match, Player
+import os
+import json
+import time
+from django.conf import settings
+from datetime import datetime, timedelta
+from football.models import Team, Season, Match, Player, Standing
 
 
 API_KEY = "7bf205ab38904c538d9c47021517f75a"
@@ -187,3 +191,214 @@ class SyncService:
         else:
             print(f"Match already exists: {id}")
 
+
+    def fetch_and_save_teams_to_file(self):
+        url = base_url + "/competitions/PD/teams"
+        response = requests.get(url, headers=headers)
+        print(f"Responce recived {response.status_code}")
+
+        if response.status_code == 200:
+            data = response.json()
+            fixtures_path = os.path.join(settings.BASE_DIR, "fixtures")
+            os.makedirs(fixtures_path, exist_ok=True)
+            with open("fixtures/teams.json", "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+
+            print("Teams and players saved to fixtures/teams.json")    
+        else:
+            print("Failed to fetch teams")
+
+
+    def load_teams_from_file(self):
+        fixtures_path = os.path.join(settings.BASE_DIR, "fixtures", "teams.json")
+
+        try:
+            with open(fixtures_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            teams = data.get("teams", [])    
+            print(f"Loaded {len(teams)} teams from file")
+
+            for team in teams:
+                db_team = self.save_team(team)
+                squad = team.get("squad", [])
+
+                for player in squad:
+                    self.save_player(player, db_team)
+
+            print("Teams and players synced from file")   
+
+        except FileNotFoundError:
+            print("File fixtures/teams.json not found.")         
+
+
+    def fetch_and_save_season_to_file(self):
+        url = base_url + "/competitions/PD"
+        response = requests.get(url, headers=headers)
+        print(f"Responce recived {response.status_code}")
+
+        if response.status_code == 200:
+            data = response.json()
+
+            current_season = data.get("currentSeason")
+            if not current_season:
+                print("No current season data find.")
+                return
+            
+            fixtures_path = os.path.join(settings.BASE_DIR, "fixtures")
+            os.makedirs(fixtures_path, exist_ok=True)
+
+            file_path = os.path.join(fixtures_path, "season.json")
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(current_season, f, ensure_ascii=False, indent=4)
+
+            print(f"Season saved to {file_path}")    
+        else:
+            print("Failed fo fetch season")    
+
+
+    def load_season_from_file(self):
+        fixtures_path = os.path.join(settings.BASE_DIR, "fixtures", "season.json")
+
+        try:
+            with open(fixtures_path, "r", encoding="utf-8") as f:
+                season_data = json.load(f)        
+
+            season = self.save_season(season_data)    
+            print("Season loaded from file and saved to DB")
+
+        except FileNotFoundError:
+            print("season.json file not found.")   
+
+
+    def fetch_and_save_matches_to_file(self):
+        season_year = 2024
+        all_matches = []
+
+        fixtures_path = os.path.join(settings.BASE_DIR, "fixtures")
+        os.makedirs(fixtures_path, exist_ok=True)
+
+        progress_file_path = os.path.join(fixtures_path, "matches_progress.txt")
+
+        if os.path.exists(progress_file_path):
+            with open(progress_file_path, "r") as f:
+                start_date_str = f.read().strip()
+                start_date = datetime.fromisoformat(start_date_str)
+                print(f" Resuming from: {start_date.date()}")
+        else:
+            start_date = datetime(season_year, 8, 1)
+            print(f" Starting from beginning: {start_date.date()}")
+
+        end_date = datetime(season_year + 1, 6, 1)
+        current = start_date
+
+        print(f" Fetching La Liga {season_year}-{season_year + 1} matches...")
+
+        while current < end_date:
+            date_from = current.strftime("%Y-%m-%d")
+            date_to = (current + timedelta(days=5)).strftime("%Y-%m-%d")
+
+            url = base_url + f"/matches?competitions=2014&dateFrom={date_from}&dateTo={date_to}"
+            response = requests.get(url, headers=headers)
+            print(f" {date_from} to {date_to} → {response.status_code}")
+
+            if response.status_code == 200:
+                data = response.json()
+                matches = data.get("matches", [])
+                all_matches.extend(matches)
+
+                with open(progress_file_path, "w") as progress_file:
+                    progress_file.write(date_to)
+                print(f" Progress saved: {date_to}")
+            else:
+                print(f" Failed for range {date_from} to {date_to}")
+                break 
+
+            current += timedelta(days=6)
+            time.sleep(6)  
+
+        with open(os.path.join(fixtures_path, "matches.json"), "w", encoding="utf-8") as f:
+            json.dump({"matches": all_matches}, f, ensure_ascii=False, indent=4)
+
+        print(f" Total {len(all_matches)} matches saved to fixtures/matches.json")   
+
+
+    def load_matches_from_file(self):
+        fixtures_path = os.path.join(settings.BASE_DIR, "fixtures", "matches.json")
+
+        try:
+            with open(fixtures_path, "r", encoding="utf-8") as f:
+                data = json.load(f)     
+
+            matches = data.get("matches", [])    
+            print(f" Loaded {len(matches)} matches from file")
+
+            for match in matches:
+                self.save_match(match)
+
+            print("Matches synced from file")    
+
+        except FileNotFoundError:
+            print("matches.json file not found")    
+
+
+    def fetch_and_save_standings_to_file(self):
+        url = base_url + "/competitions/PD/standings"
+        response = requests.get(url, headers=headers)
+        print(f" Standings response: {response.status_code}")
+
+        if response.status_code == 200:
+            data = response.json()
+            standings = data.get("standings", [])  
+
+            if not standings:
+                print(" No standings found in response")
+                return
+            
+            table = standings[0].get("table", [])
+
+            fixtures_path = os.path.join(settings.BASE_DIR, "fixtures")
+            os.makedirs(fixtures_path, exist_ok=True)
+
+            with open(os.path.join(fixtures_path, "standings.json"), "w", encoding="utf-8") as f:
+                json.dump(table, f, ensure_ascii=False, indent=4)
+
+            print(f" Standings saved to fixtures/standings.json")
+        else:
+            print(" Failed to fetch standings")
+
+
+    def load_standings_from_file(self):
+        file_path = os.path.join(settings.BASE_DIR, "fixtures", "standings.json")
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                table = json.load(f)
+
+            season = Season.objects.latest("start_date")  
+
+            Standing.objects.filter(season=season).delete()
+
+            for item in table:
+                team_id = item["team"]["id"]
+                team = Team.objects.get(id=team_id)
+
+                Standing.objects.create(
+                    season=season,
+                    team=team,
+                    position=item.get("position"),
+                    played=item.get("playedGames"),
+                    wins=item.get("won"),
+                    draws=item.get("draw"),
+                    losses=item.get("lost"),
+                    points=item.get("points"),
+                    form=item.get("form", ""),
+                    goals_for=item.get("goalsFor"),
+                    goals_against=item.get("goalsAgainst"),
+                    goal_difference=item.get("goalDifference"),
+                )
+            print(" Standings loaded into DB from file")
+
+        except FileNotFoundError:
+            print(" standings.json not found")
+            
