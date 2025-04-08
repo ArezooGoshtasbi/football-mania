@@ -5,9 +5,11 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from .models import Team, Standing
-
+from .models import Team, Standing, Match
 from football.sync_service import SyncService
+from datetime import timedelta
+from django.utils import timezone
+
 
 
 # Create your views here.
@@ -55,22 +57,24 @@ def register(request):
 @login_required
 def home(request):
     standings = Standing.objects.all().order_by("position")
-    print("🏠 Home view is running...")
+
+    now = timezone.now()
+    one_week_later = now + timedelta(days=7)
+
+    upcoming_matches = Match.objects.filter(
+        status__in=["SCHEDULED", "TIMED"], 
+        utc_date__range=(now, one_week_later)
+    ).order_by("utc_date")
 
     return render(request, "football/home.html", {
-        "standings": standings
+        "standings": standings,
+        "upcoming_matches": upcoming_matches
     })
     
 
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("home"))
-
-def home(request):
-    standings = Standing.objects.all().order_by("position")
-    return render(request, "football/home.html", {
-        "standings": standings
-    })
 
 
 def sync(request):

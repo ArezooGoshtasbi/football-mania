@@ -151,24 +151,27 @@ class SyncService:
 
     def save_match(self, match):
         id = match["id"]
-        print(match["season"]["id"])
         season = Season.objects.get(id=match["season"]["id"])
-        print(season)
         home_team = Team.objects.get(id=match["homeTeam"]["id"])
-        print(home_team)
         away_team = Team.objects.get(id=match["awayTeam"]["id"])
-        print(away_team)
         matchday = match["matchday"]
-        utc_date = datetime.fromisoformat(match["utcDate"].replace("Z", "+00:00"))
-        status = match["status"]
-        score = match["score"]
-        if score is not None:
-            home_score = match["score"]["fullTime"]["home"]
-            away_score = match["score"]["fullTime"]["away"]
-        updated_at = datetime.now()
-        
 
-        # TODO raise error if any of the feilds were empty
+        utc_date_raw = match["utcDate"]
+        if isinstance(utc_date_raw, str):
+            utc_date = datetime.fromisoformat(utc_date_raw.replace("Z", "+00:00"))
+        else:
+            utc_date = utc_date_raw
+
+        status = match["status"]
+        score = match.get("score", {})
+        home_score = None
+        away_score = None
+        if score:
+            full_time = score.get("fullTime", {})
+            home_score = full_time.get("home")
+            away_score = full_time.get("away")
+
+        updated_at = datetime.now()
 
         match, created = Match.objects.update_or_create(
             id=id,
@@ -184,12 +187,12 @@ class SyncService:
                 'updated_at': updated_at
             }
         )
-  
 
         if created:
-            print(f"Match created: {id}")
+            print(f"✅ Match created: {id}")
         else:
-            print(f"Match already exists: {id}")
+            print(f"🔁 Match updated: {id}")
+
 
 
     def fetch_and_save_teams_to_file(self):
@@ -275,11 +278,7 @@ class SyncService:
         season_year = 2024
         all_matches = []
 
-        fixtures_path = os.path.join(settings.BASE_DIR, "fixtures")
-        os.makedirs(fixtures_path, exist_ok=True)
-
-        progress_file_path = os.path.join(fixtures_path, "matches_progress.txt")
-
+        progress_file_path = os.path.join(settings.BASE_DIR, "fixtures", "matches_progress.txt")
         if os.path.exists(progress_file_path):
             with open(progress_file_path, "r") as f:
                 start_date_str = f.read().strip()
@@ -292,7 +291,7 @@ class SyncService:
         end_date = datetime(season_year + 1, 6, 1)
         current = start_date
 
-        print(f" Fetching La Liga {season_year}-{season_year + 1} matches...")
+        print(f"Fetching La Liga {season_year}-{season_year+1} matches...")
 
         while current < end_date:
             date_from = current.strftime("%Y-%m-%d")
@@ -300,7 +299,7 @@ class SyncService:
 
             url = base_url + f"/matches?competitions=2014&dateFrom={date_from}&dateTo={date_to}"
             response = requests.get(url, headers=headers)
-            print(f" {date_from} to {date_to} → {response.status_code}")
+            print(f"{date_from} to {date_to} → {response.status_code}")
 
             if response.status_code == 200:
                 data = response.json()
@@ -312,15 +311,20 @@ class SyncService:
                 print(f" Progress saved: {date_to}")
             else:
                 print(f" Failed for range {date_from} to {date_to}")
-                break 
 
             current += timedelta(days=6)
-            time.sleep(6)  
+            
+        for m in all_matches:
+            if isinstance(m.get("utcDate"), datetime):
+                m["utcDate"] = m["utcDate"].isoformat()
+
+        fixtures_path = os.path.join(settings.BASE_DIR, "fixtures")
+        os.makedirs(fixtures_path, exist_ok=True)
 
         with open(os.path.join(fixtures_path, "matches.json"), "w", encoding="utf-8") as f:
             json.dump({"matches": all_matches}, f, ensure_ascii=False, indent=4)
 
-        print(f" Total {len(all_matches)} matches saved to fixtures/matches.json")   
+        print(f"Total {len(all_matches)} matches saved to fixtures/matches.json ")
 
 
     def load_matches_from_file(self):
