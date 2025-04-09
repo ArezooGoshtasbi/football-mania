@@ -1,0 +1,66 @@
+{% extends "football/layout.html" %}
+{% block body %}
+    <section class="profile-section">
+        <h2>{{user.username}}'s Profile</h2>
+        <div class="profile-card">
+            <h3>User Info</h3>
+            <ul>
+                <li><strong>Username:</strong> {{user.username}}</li>
+                <li><strong>Email:</strong> {{user.email}}</li>
+                <li><strong>Member:</strong> {{ user.date_joined|date:"F j, Y" }}</li>
+                <li><strong>Total Predictions:</strong> {{ total_predictions }}</li>
+            </ul>
+        </div>
+        <div class="profile-card">
+            <h3>Prediction Stats</h3>
+            <ul>
+                <li><strong>Correct Predictions:</strong> {{ correct_predictions }}</li>
+                <li><strong>Incorrect Predictions:</strong> {{ incorrect_predictions }}</li>
+                <li><strong>Success Rate:</strong> <span class="highlight-green">{{ success_rate }}%</span></li>
+            </ul>
+        </div>
+        <div class="profile-card">
+            <h3>Prediction History</h3>
+            {% if has_predictions %}
+                <table class="prediction-table">
+                    <thead>
+                        <tr>
+                            <th>Match</th>
+                            <th>Date</th>
+                            <th>Your Prediction</th>
+                            <th>Result</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in predictions %}
+                            <tr>
+                                <td>{{ p.match.home_team.short_name }} <strong>vs</strong> {{ p.match.away_team.short_name }}</td>
+                                <td>{{ p.match.utc_date|date:"M d, H:i" }}</td>
+                                <td>{{ p.home_goals }} - {{ p.away_goals }}</td>
+                                <td>
+                                    {% if p.match.home_score != None and p.match.away_score != None %}
+                                        {{ p.match.home_score }} - {{ p.match.away_score }}
+                                     {% else %}
+                                        Not Played
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if p.match.status != "FINISHED" %}
+                                        <span class="status pending">Waiting Result</span>
+                                    {% elif p.result == p.score %}
+                                        <span class="status correct">Well Done</span>
+                                    {% else %}
+                                         <span class="status wrong">Incorrect</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}      
+                <p>No predictions yet.</p>
+            {% endif %}    
+        </div>
+    </section>
+{% endblock %}

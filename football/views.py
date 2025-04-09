@@ -149,3 +149,26 @@ def predict_match(request, match_id):
     return render(request, "football/predict.html", {
         "match": match
     })
+
+
+@login_required
+def profile_view(request):
+    user = request.user
+    predictions = Prediction.objects.filter(user=user)
+
+    total_predictions = predictions.count()
+    correct_predictions = predictions.filter(score=3, match__status="FINISHED").count()
+    incorrect_predictions = predictions.filter(score=0, match__status="FINISHED").count()
+
+
+    success_rate = round((correct_predictions / total_predictions) * 100, 2) if total_predictions > 0 else 0
+    has_predictions = predictions.exists()
+    return render(request, "football/profile.html", {
+        "user": user,
+        "total_predictions": total_predictions,
+        "correct_predictions": correct_predictions,
+        "incorrect_predictions": incorrect_predictions,
+        "success_rate": success_rate,
+        "predictions": predictions,
+        "has_predictions": has_predictions  
+    })

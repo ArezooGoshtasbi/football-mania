@@ -1,0 +1,97 @@
+
+.profile-section {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.profile-section h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.profile-card {
+    background: #f7f9fc;
+    border: 1px solid #e1e4ea;
+    border-top: 5px solid #116611;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.profile-card h3 {
+    color: #116611;
+    font-weight: bold;
+}
+
+.profile-card ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.profile-card li {
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #555;
+}
+.highlight-green {
+    color: #116611;
+    font-weight: bold;
+}
+.profile-card.highlight {
+    background-color: #e6f4ea;
+  }
+.profile-card li strong {
+    color: #116611;
+}
+
+.prediction-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.prediction-table th, .prediction-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.prediction-table th {
+    background-color: #116611;
+    color: white;
+    font-weight: bold;
+}
+
+.prediction-table td {
+    background-color: #fafafa;
+}
+.status.correct {
+    background-color: #e6f4ea;
+    color: #116611;
+    border: 1px solid #b3e6cc;
+}
+  
+.status.wrong {
+    background-color: #ffe6e6;
+    color: #bb2222;
+    border: 1px solid #ffcccc;
+}
+  
+.status.pending {
+    background-color: #fdf5e6;
+    color: #b8860b;
+    border: 1px solid #f7e3aa;
+}
+  
