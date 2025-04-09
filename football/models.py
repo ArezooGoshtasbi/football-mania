@@ -57,14 +57,19 @@ class Standing(models.Model):
 
 
 class Prediction(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    match = models.ForeignKey(Match, on_delete=models.CASCADE)
-    predicted_home_score = models.IntegerField()
-    predicted_away_score = models.IntegerField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="predictions")
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name="predictions")
+    result = models.CharField(max_length=10, choices=[("HOME", "Home Win"), ("AWAY", "Away Win"), ("DRAW", "Draw")])
+    home_goals = models.IntegerField()
+    away_goals = models.IntegerField()
+    score = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ("user", "match")
+
     def __str__(self):
-        return f"{self.user.username} - {self.match}"
+        return f"{self.user.username} - {self.match} - {self.result}"
 
 
 class UserProfile(models.Model):

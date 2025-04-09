@@ -1,0 +1,115 @@
+.predict-section {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  
+.match-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.team-logo {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+}
+.match-date {
+  font-weight: bold;
+  color: #444;
+  margin-bottom: 10px;
+}
+.match-info .team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.vs {
+  color: #666;
+}
+
+.form-group {
+  margin: 15px 0;
+  text-align: left;
+}
+.radio-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  transition: all 0.3s ease;
+}
+
+.radio-option:hover {
+  background-color: #f5f5f5;
+}
+
+.radio-option input[type="radio"] {
+  accent-color: green;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  transform: translateY(6px);
+}
+
+button[type="submit"] {
+  padding: 10px 25px;
+  background-color: #116611;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+input[type="number"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  margin-top: 8px;
+  transition: border 0.3s ease;
+}
+
+input[type="number"]:focus {
+  border-color: #116611;
+  outline: none;
+}
+
+@media (max-width: 500px) {
+  .predict-section {
+    margin: 20px 10px;
+    padding: 15px;
+  }
+
+  .radio-option {
+    font-size: 14px;
+  }
+
+  button[type="submit"] {
+    width: 100%;
+  }
+}
+

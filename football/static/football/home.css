@@ -35,6 +35,40 @@ body {
   text-align: left;
   max-width: 600px;
 }
+.message-container {
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.flash-message {
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  position: relative;
+  font-weight: 600;
+  text-align: center;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.flash-message.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.flash-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.close-btn {
+  position: absolute;
+  right: 16px;
+  top: 10px;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
 .matches-section {
   padding: 40px 80px;
   display: flex;
@@ -44,7 +78,7 @@ body {
   gap: 40px;
 }
 .matches-list {
-  width: 48%;
+  width: 50%;
 }
 
 .matches-section {
@@ -130,7 +164,6 @@ h2 {
 .match-card button:hover {
   background-color: #1a6f1a;
 }
-
 .league-table {
   padding: 40px 80px;
 }

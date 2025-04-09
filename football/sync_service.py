@@ -192,9 +192,8 @@ class SyncService:
             print(f"✅ Match created: {id}")
         else:
             print(f"🔁 Match updated: {id}")
-
-
-
+    
+    
     def fetch_and_save_teams_to_file(self):
         url = base_url + "/competitions/PD/teams"
         response = requests.get(url, headers=headers)

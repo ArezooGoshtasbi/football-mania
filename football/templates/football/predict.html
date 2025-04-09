@@ -1,0 +1,45 @@
+{% extends "football/layout.html" %}
+{% block body %}
+    <section class="predict-section">
+        <h2>Predict the Match</h2>
+        <div class="match-info">
+            <div class="team">
+                <img src="{{ match.home_team.logo_url }}" alt="{{ match.home_team.name }}" class="team-logo">
+                {{ match.home_team.short_name }}
+            </div>
+            <div class="vs">vs</div>
+            <div class="team">
+                <img src="{{ match.away_team.logo_url }}" alt="{{ match.away_team.name }}" class="team-logo">
+                {{ match.away_team.short_name }}
+            </div>
+        </div>
+        <p class="match-date">{{ match.utc_date|date:"M d, Y - H:i" }}</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <p><strong>Choose the match result:</strong></p>
+                <div class="radio-options">
+                  <label class="radio-option">
+                    <input type="radio" name="result" value="HOME"> Home Win
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="result" value="DRAW"> Draw
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="result" value="AWAY"> Away Win
+                  </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Predicted Home Goals:</label>
+                <input type="number" name="home_goals" placeholder="Predicted Home Goals" min="0" required>
+            </div>
+            <div class="form-group">
+                <label>Predicted Away Goals:</label>
+                <input type="number" name="away_goals" placeholder="Predicted Away Goals" min="0" required>
+            </div>
+            <button type="submit">Submit Prediction</button>
+        </form>
+    </section>
+
+{% endblock %}

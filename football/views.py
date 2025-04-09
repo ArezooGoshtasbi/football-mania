@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from .models import Team, Standing, Match
+from .models import Team, Standing, Match, Prediction
 from football.sync_service import SyncService
 from datetime import timedelta
 from django.utils import timezone
@@ -54,7 +54,6 @@ def register(request):
     return render(request, "football/register.html")
 
 
-@login_required
 def home(request):
     standings = Standing.objects.all().order_by("position")
 
@@ -116,3 +115,37 @@ def sync_standings_from_file(request):
     service.load_standings_from_file()
     return HttpResponse("Standings  synced from file.")
 
+
+@login_required
+def predict_match(request, match_id):
+    match = Match.objects.get(id=match_id)
+
+    if timezone.now() > match.utc_date - timedelta(hours=2):
+        return HttpResponse("Too late! You can't predict less than 2 hours before match.")
+
+    existing = Prediction.objects.filter(user=request.user, match=match).first()
+    if existing:
+        messages.error(request, " You've already predicted this match.")
+        return redirect("home")
+    
+    if request.method == "POST":
+        result = request.POST["result"]
+        home_goals = int(request.POST["home_goals"])
+        away_goals = int(request.POST["away_goals"])
+
+        if home_goals < 0 or away_goals < 0:
+            messages.error(request, "Goals cannot be negative.")
+            return redirect("predict", match_id=match.id)
+
+        Prediction.objects.create(
+            user=request.user,
+            match=match,
+            result=result,
+            home_goals=home_goals,
+            away_goals=away_goals
+        )
+        messages.success(request, " Prediction saved successfully!")
+        return redirect("home")
+    return render(request, "football/predict.html", {
+        "match": match
+    })

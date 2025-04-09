@@ -7,6 +7,16 @@
     </div>
   </section>
   <section class="matches-section">
+    {% if messages %}
+      <div class="message-container">
+        {% for message in messages %}
+          <div class="flash-message {{ message.tags }}">
+            {{ message }}
+            <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
     <h2>Upcoming Matches</h2>
     <div class="matches-list">
       {% if upcoming_matches %}
@@ -19,14 +29,22 @@
             <div class="match-center">
               <div class="vs">vs</div>
               <div class="time">
-                {{ match.utc_date|date:"M d" }} - {{ match.utc_date|time:"H:i" }}
+                {{ match.utc_date|date:"M d" }}-{{ match.utc_date|time:"H:i" }}
               </div>
             </div>
             <div class="team-info">
               <img src="{{ match.away_team.logo_url }}" alt="{{ match.away_team.name }}">
               <div class="team-name">{{ match.away_team.short_name }}</div>
             </div>
-            <button>Predict New</button>
+            {% if user.is_authenticated %}
+              <a href="{% url 'predict' match.id %}">
+                <button>Predict New</button>
+              </a>
+            {% else %}
+              <a href="{% url 'login' %}?next={% url 'predict' match.id %}">
+                <button>Predict New</button>
+              </a>
+            {% endif %}
           </div>
         {% endfor %}  
       {% else %}
@@ -73,4 +91,13 @@
       </table>
     </div>
   </section>
+  <script>
+    setTimeout(() => {
+      document.querySelectorAll('.flash-message').forEach(el => {
+        el.style.transition = "opacity 0.5s";
+        el.style.opacity = 0;
+        setTimeout(() => el.style.display = "none", 500);
+      });
+    }, 2000); 
+  </script>
 {% endblock %}
