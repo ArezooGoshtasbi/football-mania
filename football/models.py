@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from football.types import PredictionStatus
+
 
 # Create your models here.
 class Team(models.Model):
@@ -27,7 +29,7 @@ class Match(models.Model):
     away_team = models.ForeignKey(Team, related_name="away_matches", on_delete=models.CASCADE)
     matchday = models.IntegerField()
     utc_date = models.DateTimeField()
-    status = models.CharField(max_length=20) # UP_COMING, IN_PROGRESS, FINISHED
+    status = models.CharField(max_length=20) # SCHEDULED, TIMED, FINISHED
     home_score = models.IntegerField(null=True, blank=True)
     away_score = models.IntegerField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -59,10 +61,10 @@ class Standing(models.Model):
 class Prediction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="predictions")
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name="predictions")
-    result = models.CharField(max_length=10, choices=[("HOME", "Home Win"), ("AWAY", "Away Win"), ("DRAW", "Draw")])
+    result = models.CharField(max_length=10, choices=[(tag.name, tag.value) for tag in PredictionStatus])
     home_goals = models.IntegerField()
     away_goals = models.IntegerField()
-    score = models.IntegerField(default=0)
+    score = models.IntegerField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

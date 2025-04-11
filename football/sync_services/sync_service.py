@@ -1,27 +1,22 @@
 import requests
 import os
 import json
-import time
 from django.conf import settings
 from datetime import datetime, timedelta
-from football.models import Team, Season, Match, Player, Standing
-
-
-API_KEY = "7bf205ab38904c538d9c47021517f75a"
-
-base_url = "https://api.football-data.org/v4"
-headers = {
-    "X-Auth-Token": API_KEY
-}
+from football.constants import BASE_URL, HEADERS
+from football.models import Team, Season, Player, Standing
+from football.sync_services.sync_match import SyncMatch
 
 
 class SyncService:
+    sync_match: SyncMatch
+
     def __init__(self):
-        pass
+        self.sync_match = SyncMatch()
 
     def sync_teams_and_players(self):
-        url = base_url + "/competitions/PD/teams"
-        response = requests.get(url, headers=headers)
+        url = BASE_URL + "/competitions/PD/teams"
+        response = requests.get(url, headers=HEADERS)
         print(f"Responce recived {response.status_code}")
 
         if response.status_code == 200:
@@ -90,8 +85,8 @@ class SyncService:
 
 
     def sync_season(self):
-        url = base_url + "/competitions/PD"
-        response = requests.get(url, headers=headers)
+        url = BASE_URL + "/competitions/PD"
+        response = requests.get(url, headers=HEADERS)
         print(f"Responce recived {response.status_code}")
 
         season = None
@@ -135,68 +130,10 @@ class SyncService:
 
         return season
 
-
-    def sync_matches(self, dateFrom, dateTo):
-        url = base_url + f"/matches?competitions=2014&dateFrom={dateFrom}&dateTo={dateTo}"
-        response = requests.get(url, headers=headers)
-        print(f"Responce recived {response.status_code}")
-
-        if response.status_code == 200:
-            data = response.json()
-            for match in data['matches']:
-                self.save_match(match)
-        else:
-            print("Error:", response.status_code)
-    
-
-    def save_match(self, match):
-        id = match["id"]
-        season = Season.objects.get(id=match["season"]["id"])
-        home_team = Team.objects.get(id=match["homeTeam"]["id"])
-        away_team = Team.objects.get(id=match["awayTeam"]["id"])
-        matchday = match["matchday"]
-
-        utc_date_raw = match["utcDate"]
-        if isinstance(utc_date_raw, str):
-            utc_date = datetime.fromisoformat(utc_date_raw.replace("Z", "+00:00"))
-        else:
-            utc_date = utc_date_raw
-
-        status = match["status"]
-        score = match.get("score", {})
-        home_score = None
-        away_score = None
-        if score:
-            full_time = score.get("fullTime", {})
-            home_score = full_time.get("home")
-            away_score = full_time.get("away")
-
-        updated_at = datetime.now()
-
-        match, created = Match.objects.update_or_create(
-            id=id,
-            defaults={
-                'season': season,
-                'home_team': home_team,
-                'away_team': away_team,
-                'matchday': matchday,
-                'utc_date': utc_date,
-                'status': status,
-                'home_score': home_score,
-                'away_score': away_score,
-                'updated_at': updated_at
-            }
-        )
-
-        if created:
-            print(f"✅ Match created: {id}")
-        else:
-            print(f"🔁 Match updated: {id}")
-    
     
     def fetch_and_save_teams_to_file(self):
-        url = base_url + "/competitions/PD/teams"
-        response = requests.get(url, headers=headers)
+        url = BASE_URL + "/competitions/PD/teams"
+        response = requests.get(url, headers=HEADERS)
         print(f"Responce recived {response.status_code}")
 
         if response.status_code == 200:
@@ -235,8 +172,8 @@ class SyncService:
 
 
     def fetch_and_save_season_to_file(self):
-        url = base_url + "/competitions/PD"
-        response = requests.get(url, headers=headers)
+        url = BASE_URL + "/competitions/PD"
+        response = requests.get(url, headers=HEADERS)
         print(f"Responce recived {response.status_code}")
 
         if response.status_code == 200:
@@ -296,8 +233,8 @@ class SyncService:
             date_from = current.strftime("%Y-%m-%d")
             date_to = (current + timedelta(days=5)).strftime("%Y-%m-%d")
 
-            url = base_url + f"/matches?competitions=2014&dateFrom={date_from}&dateTo={date_to}"
-            response = requests.get(url, headers=headers)
+            url = BASE_URL + f"/matches?competitions=2014&dateFrom={date_from}&dateTo={date_to}"
+            response = requests.get(url, headers=HEADERS)
             print(f"{date_from} to {date_to} → {response.status_code}")
 
             if response.status_code == 200:
@@ -337,7 +274,7 @@ class SyncService:
             print(f" Loaded {len(matches)} matches from file")
 
             for match in matches:
-                self.save_match(match)
+                self.sync_match.save_match(match)
 
             print("Matches synced from file")    
 
@@ -346,8 +283,8 @@ class SyncService:
 
 
     def fetch_and_save_standings_to_file(self):
-        url = base_url + "/competitions/PD/standings"
-        response = requests.get(url, headers=headers)
+        url = BASE_URL + "/competitions/PD/standings"
+        response = requests.get(url, headers=HEADERS)
         print(f" Standings response: {response.status_code}")
 
         if response.status_code == 200:
@@ -405,3 +342,4 @@ class SyncService:
         except FileNotFoundError:
             print(" standings.json not found")
             
+    

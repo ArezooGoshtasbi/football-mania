@@ -14,6 +14,7 @@
         <div class="profile-card">
             <h3>Prediction Stats</h3>
             <ul>
+                <li><strong>Total Score:</strong> {{user_score}}</li>
                 <li><strong>Correct Predictions:</strong> {{ correct_predictions }}</li>
                 <li><strong>Incorrect Predictions:</strong> {{ incorrect_predictions }}</li>
                 <li><strong>Success Rate:</strong> <span class="highlight-green">{{ success_rate }}%</span></li>
@@ -48,7 +49,7 @@
                                 <td>
                                     {% if p.match.status != "FINISHED" %}
                                         <span class="status pending">Waiting Result</span>
-                                    {% elif p.result == p.score %}
+                                    {% elif p.score > 0 %}
                                         <span class="status correct">Well Done</span>
                                     {% else %}
                                          <span class="status wrong">Incorrect</span>

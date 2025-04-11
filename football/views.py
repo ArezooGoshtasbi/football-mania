@@ -5,8 +5,9 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from .models import Team, Standing, Match, Prediction
-from football.sync_service import SyncService
+
+from .models import Team, Standing, Match, Prediction, UserProfile
+from football.sync_services.sync_service import SyncService
 from datetime import timedelta
 from django.utils import timezone
 
@@ -46,6 +47,8 @@ def register(request):
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
+            user_profile = UserProfile.objects.create(user=user)
+            user_profile.save()
         except:
             messages.error(request, "Username already taken.")    
             return render(request, "football/register.html")
@@ -80,10 +83,6 @@ def sync(request):
     sync_service = SyncService()
     sync_service.sync_teams_and_players()
     season = sync_service.sync_season()
-    if season is not None:
-        sync_service.sync_matches("2025-05-15", "2025-05-25")
-    # sync player
-    # ...
     return HttpResponse("Sync Done!")
 
 
@@ -157,12 +156,13 @@ def profile_view(request):
     predictions = Prediction.objects.filter(user=user)
 
     total_predictions = predictions.count()
-    correct_predictions = predictions.filter(score=3, match__status="FINISHED").count()
     incorrect_predictions = predictions.filter(score=0, match__status="FINISHED").count()
+    correct_predictions = total_predictions - incorrect_predictions
 
 
     success_rate = round((correct_predictions / total_predictions) * 100, 2) if total_predictions > 0 else 0
     has_predictions = predictions.exists()
+    user_profile = UserProfile.objects.get(user=user)
     return render(request, "football/profile.html", {
         "user": user,
         "total_predictions": total_predictions,
@@ -170,5 +170,6 @@ def profile_view(request):
         "incorrect_predictions": incorrect_predictions,
         "success_rate": success_rate,
         "predictions": predictions,
-        "has_predictions": has_predictions  
+        "has_predictions": has_predictions,
+        "user_score": user_profile.score  
     })
