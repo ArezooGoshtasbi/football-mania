@@ -66,7 +66,7 @@ class SyncMatch:
         )
 
         if created:
-            print(f"✅ Match created: {id}")
+            print(f" Match created: {id}")
         else:
-            print(f"🔁 Match updated: {id}")
+            print(f" Match updated: {id}")
     

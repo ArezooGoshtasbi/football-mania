@@ -120,7 +120,8 @@ def predict_match(request, match_id):
     match = Match.objects.get(id=match_id)
 
     if timezone.now() > match.utc_date - timedelta(hours=2):
-        return HttpResponse("Too late! You can't predict less than 2 hours before match.")
+        messages.error(request, "Too late! You can't predict less than 2 hours before match.")
+        return redirect("home")
 
     existing = Prediction.objects.filter(user=request.user, match=match).first()
     if existing:
@@ -130,10 +131,20 @@ def predict_match(request, match_id):
     if request.method == "POST":
         result = request.POST["result"]
         home_goals = int(request.POST["home_goals"])
-        away_goals = int(request.POST["away_goals"])
+        away_goals = int(request.POST["away_goals"])    
 
         if home_goals < 0 or away_goals < 0:
             messages.error(request, "Goals cannot be negative.")
+            return redirect("predict", match_id=match.id)
+
+        if result == "HOME" and home_goals <= away_goals:
+            messages.error(request, "For a Home Win, home goals must be greater than away goals.")
+            return redirect("predict", match_id=match.id)
+        if result == "AWAY" and away_goals <= home_goals:
+            messages.error(request, "For an Away Win, away goals must be greater than home goals.")
+            return redirect("predict", match_id=match.id)
+        if result == "DRAW" and home_goals != away_goals:
+            messages.error(request, "For a Draw, goals must be equal.")
             return redirect("predict", match_id=match.id)
 
         Prediction.objects.create(
