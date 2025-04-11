@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-
+from django.db.models import Sum
 from .models import Team, Standing, Match, Prediction, UserProfile
 from football.sync_services.sync_service import SyncService
 from datetime import timedelta
@@ -167,13 +167,17 @@ def profile_view(request):
     predictions = Prediction.objects.filter(user=user)
 
     total_predictions = predictions.count()
-    incorrect_predictions = predictions.filter(score=0, match__status="FINISHED").count()
-    correct_predictions = total_predictions - incorrect_predictions
+    finished_predictions = predictions.filter(match__status="FINISHED")
+    
+    incorrect_predictions = finished_predictions.filter(score=0).count()
+    total_finished = finished_predictions.count()
+    correct_predictions = total_finished - incorrect_predictions
 
+    success_rate = round((correct_predictions / total_finished) * 100, 2) if total_finished > 0 else 0
 
-    success_rate = round((correct_predictions / total_predictions) * 100, 2) if total_predictions > 0 else 0
     has_predictions = predictions.exists()
     user_profile = UserProfile.objects.get(user=user)
+
     return render(request, "football/profile.html", {
         "user": user,
         "total_predictions": total_predictions,
@@ -182,5 +186,6 @@ def profile_view(request):
         "success_rate": success_rate,
         "predictions": predictions,
         "has_predictions": has_predictions,
-        "user_score": user_profile.score  
+        "user_score": user_profile.score,
+        "total_finished": total_finished
     })
