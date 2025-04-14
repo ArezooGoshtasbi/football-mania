@@ -6,13 +6,16 @@ from datetime import datetime, timedelta
 from football.constants import BASE_URL, HEADERS
 from football.models import Team, Season, Player, Standing
 from football.sync_services.sync_match import SyncMatch
+from football.sync_services.sync_standings import SyncStandings
 
 
 class SyncService:
     sync_match: SyncMatch
+    sync_standings: SyncStandings
 
     def __init__(self):
         self.sync_match = SyncMatch()
+        self.sync_standings = SyncStandings()
 
     def sync_teams_and_players(self):
         url = BASE_URL + "/competitions/PD/teams"
@@ -283,29 +286,18 @@ class SyncService:
 
 
     def fetch_and_save_standings_to_file(self):
-        url = BASE_URL + "/competitions/PD/standings"
-        response = requests.get(url, headers=HEADERS)
-        print(f" Standings response: {response.status_code}")
+        standings = self.sync_standings.fetch_standings()
+    
+        table = standings[0].get("table", [])
 
-        if response.status_code == 200:
-            data = response.json()
-            standings = data.get("standings", [])  
+        fixtures_path = os.path.join(settings.BASE_DIR, "fixtures")
+        os.makedirs(fixtures_path, exist_ok=True)
 
-            if not standings:
-                print(" No standings found in response")
-                return
-            
-            table = standings[0].get("table", [])
+        with open(os.path.join(fixtures_path, "standings.json"), "w", encoding="utf-8") as f:
+            json.dump(table, f, ensure_ascii=False, indent=4)
 
-            fixtures_path = os.path.join(settings.BASE_DIR, "fixtures")
-            os.makedirs(fixtures_path, exist_ok=True)
+        print(f" Standings saved to fixtures/standings.json")
 
-            with open(os.path.join(fixtures_path, "standings.json"), "w", encoding="utf-8") as f:
-                json.dump(table, f, ensure_ascii=False, indent=4)
-
-            print(f" Standings saved to fixtures/standings.json")
-        else:
-            print(" Failed to fetch standings")
 
 
     def load_standings_from_file(self):

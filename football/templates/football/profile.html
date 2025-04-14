@@ -30,6 +30,7 @@
                             <th>Date</th>
                             <th>Your Prediction</th>
                             <th>Result</th>
+                            <th>Points</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -47,12 +48,19 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if p.match.status != "FINISHED" %}
-                                        <span class="status pending">Waiting Result</span>
-                                    {% elif p.score > 0 %}
-                                        <span class="status correct">Well Done</span>
+                                    {% if p.match.status == "FINISHED" %}
+                                       ⭐ {{ p.score }}
                                     {% else %}
-                                         <span class="status wrong">Incorrect</span>
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if p.match.status != "FINISHED" %}
+                                        <span class="status pending">⏳ Waiting Result</span>
+                                    {% elif p.score > 0 %}
+                                        <span class="status correct">✅ Well Done</span>
+                                    {% else %}
+                                         <span class="status wrong">❌ Incorrect</span>
                                     {% endif %}
                                 </td>
                             </tr>

@@ -99,7 +99,7 @@ h2 {
   margin: 40px auto;
   max-width: 1000px;
 }
-.match-card {
+.match-card{
   background: white;
   padding: 15px;
   border-radius: 12px;
@@ -136,6 +136,7 @@ h2 {
   align-items: center;
   justify-content: center;
   flex-grow: 1;
+  width: 150px;
 }
 
 .vs {
