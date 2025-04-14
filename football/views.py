@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
+from django.db.models import Sum
 from .models import Team, Standing, Match, Prediction, UserProfile
 from football.sync_services.sync_service import SyncService
 from datetime import timedelta
@@ -168,11 +169,13 @@ def profile_view(request):
     total_predictions = predictions.count()
     finished_predictions = predictions.filter(match__status="FINISHED")
     
-    incorrect_predictions = finished_predictions.filter(score=0).count()
     total_finished = finished_predictions.count()
-    correct_predictions = total_finished - incorrect_predictions
-
-    success_rate = round((correct_predictions / total_finished) * 100, 2) if total_finished > 0 else 0
+    correct_predictions = finished_predictions.filter(score=3).count()
+    partially_correct = finished_predictions.filter(score__in=[1, 2]).count()
+    incorrect_predictions = finished_predictions.filter(score=0).count()
+    total_score = finished_predictions.aggregate(total=Sum("score"))["total"] or 0
+    max_possible_score = total_finished * 5
+    success_rate = round((total_score / max_possible_score) * 100, 2) if total_finished > 0 else 0
 
     has_predictions = predictions.exists()
     user_profile = UserProfile.objects.get(user=user)
@@ -181,10 +184,42 @@ def profile_view(request):
         "user": user,
         "total_predictions": total_predictions,
         "correct_predictions": correct_predictions,
+        "partially_correct": partially_correct,
         "incorrect_predictions": incorrect_predictions,
         "success_rate": success_rate,
         "predictions": predictions,
         "has_predictions": has_predictions,
         "user_score": user_profile.score,
         "total_finished": total_finished
+    })
+
+
+@login_required
+def user_ranking(request):
+    user_profiles = UserProfile.objects.select_related("user").all()
+    max_score = max([profile.score for profile in user_profiles], default=1)
+    ranking_data = []
+
+    for profile in sorted(user_profiles, key=lambda x: x.score, reverse=True):
+        user_predictions = Prediction.objects.filter(
+            user=profile.user,
+            match__status="FINISHED",
+            score__isnull=False
+        )
+
+        total_finished = user_predictions.count()
+        if total_finished > 0:
+            performance = round((profile.score / max_score) * 100) if max_score > 0 else 0
+
+            ranking_data.append({
+                "rank": len(ranking_data) + 1,
+                "username": profile.user.username,
+                "score": profile.score,
+                "performance": performance,
+                "total_finished": total_finished,
+                "is_current_user": profile.user == request.user
+            })
+
+    return render(request, "football/user_ranking.html", {
+        "ranking_data": ranking_data
     })

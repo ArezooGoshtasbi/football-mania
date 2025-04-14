@@ -16,8 +16,9 @@
             <ul>
                 <li><strong>Total Score:</strong> {{ user_score }}</li>
                 <li><strong>Correct Predictions:</strong> {{ correct_predictions }}</li>
+                <li><strong>Partially Correct:</strong> {{ partially_correct }}</li>
                 <li><strong>Incorrect Predictions:</strong> {{ incorrect_predictions }}</li>
-                <li><strong>Success Rate:</strong> <span class="highlight-green">{{ success_rate }}%</span></li>
+                <li><strong>Success Rate:</strong> {{ success_rate }}%</li>
             </ul>
         </div>
         <div class="profile-card">
@@ -56,13 +57,17 @@
                                 </td>
                                 <td>
                                     {% if p.match.status != "FINISHED" %}
-                                        <span class="status pending">⏳ Waiting Result</span>
-                                    {% elif p.score > 0 %}
-                                        <span class="status correct">✅ Well Done</span>
+                                      <span class="status-pending">⏳ Waiting Result</span>
+                                    {% elif p.score == 5 %}
+                                      <span class="status-perfect"> ✅ Correct Prediction</span>
+                                    {% elif p.score == 3 %}
+                                      <span class="status-correct">✔ Correct Result</span>
+                                    {% elif p.score == 1 %}
+                                      <span class="status-partial">🟨 Partially Correct</span>
                                     {% else %}
-                                         <span class="status wrong">❌ Incorrect</span>
+                                      <span class="status-wrong">❌ Incorrect</span>
                                     {% endif %}
-                                </td>
+                                  </td>
                             </tr>
                             {% endfor %}
                     </tbody>

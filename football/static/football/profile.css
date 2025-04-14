@@ -77,21 +77,32 @@
 .prediction-table td {
     background-color: #fafafa;
 }
-.status.correct {
-    background-color: #e6f4ea;
+.status-perfect {
     color: #116611;
-    border: 1px solid #b3e6cc;
+    font-weight: bold;
+    padding: 4px 10px;
 }
-  
-.status.wrong {
-    background-color: #ffe6e6;
-    color: #bb2222;
-    border: 1px solid #ffcccc;
+
+.status-correct {
+    color: #2e7d32;
+    font-weight: bold;
+    padding: 4px 10px;
 }
-  
-.status.pending {
-    background-color: #fdf5e6;
-    color: #b8860b;
-    border: 1px solid #f7e3aa;
+
+.status-partial {
+    color: #856404;
+    font-weight: bold;
+    padding: 4px 10px;
 }
+
+.status-wrong {
+    color: #721c24;
+    font-weight: bold;
+    padding: 4px 10px;
+}
+.status-pending {
+    color: #5e35b1;
+    font-weight: bold;
+    padding: 4px 10px;
+  }
   

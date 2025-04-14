@@ -1,0 +1,51 @@
+{% extends "football/layout.html" %}
+{% load static %}
+
+{% block body %}
+  <section class="leaderboard-section">
+      <h2>🏆 User Ranking</h2>
+      <table class="leaderboard-table">
+          <thead>
+              <tr>
+                  <th>Rank</th>
+                  <th>Username</th>
+                  <th>Score</th>
+                  <th>Predictions</th>
+                  <th>Performance</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for user in ranking_data %}
+                  <tr class="{% if user.is_current_user %}highlight{% endif %}">
+                      <td>
+                          {% if user.rank == 1 %}
+                              🥇
+                          {% elif user.rank == 2 %}
+                              🥈
+                          {% elif user.rank == 3 %}
+                              🥉
+                          {% else %}
+                              {{ user.rank }}
+                          {% endif %}
+                      </td>
+                      <td class="username">{{ user.username }}</td>
+                      <td>{{ user.score }}</td>
+                      <td class="prediction-count">{{ user.total_finished }}</td>
+                      <td>
+                          <div class="progress-bar">
+                              <div class="progress-inner
+                                  {% if user.performance >= 70 %}progress-green
+                                  {% elif user.performance >= 40 %}progress-yellow
+                                  {% else %}progress-red
+                                  {% endif %}"
+                                  style="width: {{ user.performance }}%">
+                                  {{ user.performance }}%
+                              </div>
+                          </div>
+                      </td>
+                  </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </section>
+{% endblock %}

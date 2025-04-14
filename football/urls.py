@@ -15,5 +15,7 @@ urlpatterns = [
     path("sync/matches/fromfile/", views.sync_matches_from_file, name="sync_matches_from_file"),
     path("sync/standings/fromfile/", views.sync_standings_from_file, name="sync_standings_from_file"),
     path("predict/<int:match_id>/", views.predict_match, name="predict"),
-    path("profile/", views.profile_view, name="profile")
+    path("profile/", views.profile_view, name="profile"),
+    path("ranking/", views.user_ranking, name="user_ranking"),
+
 ]

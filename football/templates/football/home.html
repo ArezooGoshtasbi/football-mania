@@ -60,13 +60,13 @@
             <th>Pos</th>
             <th>Team</th>
             <th>MP</th>
+            <th>Pts</th>
             <th>W</th>
             <th>D</th>
             <th>L</th>
             <th>GF</th>
             <th>GA</th>
             <th>GD</th>
-            <th>Pts</th>
           </tr>
         </thead>
         <tbody>
@@ -78,13 +78,13 @@
                 {{row.team.name}}
               </td>
               <td>{{row.played}}</td>
+              <td>{{row.points}}</td>
               <td>{{row.wins}}</td>
               <td>{{row.draws}}</td>
               <td>{{row.losses}}</td>
               <td>{{row.goals_for}}</td>
               <td>{{row.goals_against}}</td>
               <td>{{ row.goal_difference }}</td>
-              <td>{{row.points}}</td>
             </tr>
           {% endfor %} 
         </tbody>
