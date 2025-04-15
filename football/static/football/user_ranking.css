@@ -1,6 +1,6 @@
 
-.leaderboard-section {
-  max-width: 1000px;
+.user-ranking-section {
+  max-width: 70%;
   margin: 40px auto;
   padding: 20px;
   background: #f9f9f9;
@@ -8,47 +8,74 @@
   box-shadow: 0 0 10px rgba(0,0,0,0.08);
 }
 
-.leaderboard-section h2 {
+.user-ranking-section h2 {
   text-align: center;
   color: #116611;
   margin-bottom: 30px;
   font-size: 28px;
 }
+.status-overview {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 20px;
+  margin-bottom: 30px;
+  text-align: center;
+}
 
-.leaderboard-table {
+.stat-item {
+  background-color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.05);
+  font-size: 16px;
+  flex: 1 1 200px;
+  max-width: 220px;
+}
+.stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.stat-item strong {
+  color: #006400;
+  font-weight: 700;
+}
+
+.user-ranking-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0 12px;
 }
 
-.leaderboard-table th,
-.leaderboard-table td {
+.user-ranking-table th,
+.user-ranking-table td {
   padding: 12px 16px;
   text-align: center;
 }
 
-.leaderboard-table thead {
+.user-ranking-table thead {
   background-color: #dfece1;
   font-weight: bold;
   font-size: 16px;
 }
 
-.leaderboard-table tbody tr {
+.user-ranking-table tbody tr {
   background: #fff;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   border-radius: 8px;
   transition: transform 0.2s;
 }
 
-.leaderboard-table tbody tr:hover {
+.user-ranking-table tbody tr:hover {
   transform: scale(1.01);
 }
 
-.leaderboard-table td.username {
+.user-ranking-table td.username {
   font-weight: bold;
 }
 
-.leaderboard-table .highlight {
+.user-ranking-table .highlight {
   background-color: #e8ffe8;
 }
 
@@ -59,25 +86,61 @@
 
 .progress-bar {
   width: 100%;
-  height: 25px;
-  border-radius: 8px;
-  background-color: #ddd;
+  height: 20px;
+  border-radius: 12px;
+  background: #eee;
   overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  position: relative;
 }
 
 .progress-inner {
   height: 100%;
-  border-radius: 8px;
+  transition: width 0.7s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 13px;
+  color: white;
 }
 
 .progress-green {
-  background-color: #2ecc71;
+  background: linear-gradient(90deg, #4CAF50, #2E7D32);
 }
 
 .progress-yellow {
-  background-color: #f1c40f;
+  background: linear-gradient(90deg, #FBC02D, #F57C00);
 }
 
 .progress-red {
-  background-color: #e74c3c;
+  background: linear-gradient(90deg, #E53935, #B71C1C);
+}
+.progress-zero {
+  width: 100%;
+  background-color: #ddd;
+  color: #333;
+  text-align: right;
+  padding-right: 8px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .user-ranking-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .user-ranking-table {
+    width: 800px; 
+  }
+
+  .user-ranking-section h2 {
+    font-size: 20px;
+  }
+
+  .stat-item {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
 }

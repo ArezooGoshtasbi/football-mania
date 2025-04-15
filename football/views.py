@@ -171,6 +171,7 @@ def profile_view(request):
     
     total_finished = finished_predictions.count()
     correct_predictions = finished_predictions.filter(score=3).count()
+    correct_result = finished_predictions.filter(score=3).count()
     partially_correct = finished_predictions.filter(score__in=[1, 2]).count()
     incorrect_predictions = finished_predictions.filter(score=0).count()
     total_score = finished_predictions.aggregate(total=Sum("score"))["total"] or 0
@@ -184,6 +185,7 @@ def profile_view(request):
         "user": user,
         "total_predictions": total_predictions,
         "correct_predictions": correct_predictions,
+        "correct_result": correct_result,
         "partially_correct": partially_correct,
         "incorrect_predictions": incorrect_predictions,
         "success_rate": success_rate,
@@ -197,29 +199,57 @@ def profile_view(request):
 @login_required
 def user_ranking(request):
     user_profiles = UserProfile.objects.select_related("user").all()
-    max_score = max([profile.score for profile in user_profiles], default=1)
     ranking_data = []
+    total_predictions_count = 0
+    total_points = 0
+    top_accuracy = {"username": "-", "accuracy": 0}
+    highest_accuracy = 0
+    top_user = None
 
     for profile in sorted(user_profiles, key=lambda x: x.score, reverse=True):
+        user = profile.user
         user_predictions = Prediction.objects.filter(
-            user=profile.user,
+            user=user,
             match__status="FINISHED",
             score__isnull=False
         )
-
         total_finished = user_predictions.count()
-        if total_finished > 0:
-            performance = round((profile.score / max_score) * 100) if max_score > 0 else 0
 
-            ranking_data.append({
-                "rank": len(ranking_data) + 1,
-                "username": profile.user.username,
-                "score": profile.score,
-                "performance": performance,
-                "total_finished": total_finished,
-                "is_current_user": profile.user == request.user
-            })
+        if total_finished == 0:
+            continue
+
+        total_predictions_count += total_finished
+        total_points += profile.score
+
+        max_possible_score = total_finished * 5
+        performance = round((profile.score / max_possible_score) * 100, 2) if max_possible_score > 0 else 0
+
+        perfect_predictions = user_predictions.filter(score=5).count()
+        accuracy = round((perfect_predictions / total_finished) * 100, 2)
+
+        if accuracy > highest_accuracy:
+            highest_accuracy = accuracy
+            top_accuracy = {
+                "username": user.username,
+                "accuracy": accuracy
+            }
+
+        ranking_data.append({
+            "rank": len(ranking_data) + 1,
+            "username": user.username,
+            "score": profile.score,
+            "performance": performance,
+            "total_finished": total_finished,
+            "is_current_user": user == request.user
+        })
+    if ranking_data:
+        top_user = max(ranking_data, key=lambda x: x["score"])
 
     return render(request, "football/user_ranking.html", {
-        "ranking_data": ranking_data
+        "ranking_data": ranking_data,
+        "total_users": len(ranking_data),
+        "total_predictions": total_predictions_count,
+        "top_user": top_user,
+        "top_accuracy": top_accuracy,
+        "total_points": total_points
     })
