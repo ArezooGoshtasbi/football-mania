@@ -1,12 +1,15 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Sum
-from .models import Team, Standing, Match, Prediction, UserProfile
+import json
+from .models import Team, Standing, Match, Prediction, UserProfile, Comment
 from football.sync_services.sync_service import SyncService
 from datetime import timedelta
 from django.utils import timezone
@@ -253,3 +256,23 @@ def user_ranking(request):
         "top_accuracy": top_accuracy,
         "total_points": total_points
     })
+
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def comments_view(request):
+    if request.method == "GET":
+        comments = Comment.objects.order_by('-timestamp')[:50]
+        return JsonResponse([c.serialize() for c in comments], safe=False)
+    
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Login required"}, status=401)
+    
+    data = json.loads(request.body)
+    message = data.get("message")
+    if not message:
+        return JsonResponse({"error": "Empty message"}, status=400)
+    
+    comment = Comment(user=request.user, message=message)
+    comment.save()
+    return JsonResponse(comment.serialize(), status=201)

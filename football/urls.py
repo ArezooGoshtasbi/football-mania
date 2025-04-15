@@ -17,5 +17,5 @@ urlpatterns = [
     path("predict/<int:match_id>/", views.predict_match, name="predict"),
     path("profile/", views.profile_view, name="profile"),
     path("ranking/", views.user_ranking, name="user_ranking"),
-
+    path("comments/", views.comments_view, name="comments")
 ]

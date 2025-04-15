@@ -100,3 +100,20 @@ class Player(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.position})"
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user": self.user.username,
+            "message": self.message,
+            "timestamp": self.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+
+    def __str__(self):
+        return f"{self.user.username}: {self.message[:30]}"

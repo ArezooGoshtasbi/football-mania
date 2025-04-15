@@ -2,7 +2,8 @@
 {% load static %}
 
 {% block body %}
-  <section class="user-ranking-section">
+  <div class="ranking-chat-wrapper">
+    <section class="user-ranking-section">
       <h2>🏆 User Ranking</h2>
       <div class="status-overview">
         <div class="stat-item">🧍 Total Users: <strong>{{ total_users }}</strong></div>
@@ -65,5 +66,21 @@
             </tbody>
         </table>
      </div>
-  </section>
+    </section>
+    <section class="mini-chat-section">
+      <div class="chat-box" id="mini-chat">
+        <h2>💬 Mini Chat</h2>
+        <div id="chat-messages" class="chat-messages"></div>
+        {% if user.is_authenticated %}
+          <form id="chat-form">
+            <textarea id="chat-input" rows="2" placeholder="Type your message..."></textarea>
+            <button type="submit">Send</button>
+          </form>
+        {% else %}
+          <p>You must be logged in to send messages.</p>  
+        {% endif %}  
+       </div>
+    </section>
+  </div>
+  <script src="{% static 'football/mini_chat.js' %}"></script> 
 {% endblock %}
