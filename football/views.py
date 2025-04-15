@@ -199,7 +199,6 @@ def profile_view(request):
     })
 
 
-@login_required
 def user_ranking(request):
     user_profiles = UserProfile.objects.select_related("user").all()
     ranking_data = []
