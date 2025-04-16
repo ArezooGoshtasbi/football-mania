@@ -72,7 +72,18 @@
   color: #006400;
   font-weight: 700;
 }
+.search-box {
+  text-align: right;
+  margin-bottom: 20px;
+}
 
+#search-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 250px;
+  font-size: 14px;
+}
 .user-ranking-table {
   width: 100%;
   border-collapse: separate;

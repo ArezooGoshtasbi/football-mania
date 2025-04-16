@@ -18,6 +18,9 @@
         <div class="stat-item">🔥 Most Accurate: <strong>{{ top_accuracy.username }} ({{ top_accuracy.accuracy }}%)</strong></div>
       </div>
      <div class="user-ranking-table-wrapper">
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Search by username... 🔍">
+      </div>
         <table class="user-ranking-table">
             <thead>
                 <tr>
@@ -82,5 +85,7 @@
        </div>
     </section>
   </div>
-  <script src="{% static 'football/mini_chat.js' %}"></script> 
+  <script src="{% static 'football/js/mini_chat.js' %}"></script> 
+  <script src="{% static 'football/js/user_ranking.js' %}"></script> 
+
 {% endblock %}
