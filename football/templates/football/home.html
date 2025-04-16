@@ -17,6 +17,9 @@
         {% endfor %}
       </div>
     {% endif %}
+    <div id="next-match-timer" class="countdown-timer">
+      <!-- متن تایمر اینجا با جاوااسکریپت میاد -->
+    </div>
     <h2>Upcoming Matches</h2>
     <div class="matches-list">
       {% if upcoming_matches %}
@@ -100,4 +103,5 @@
       });
     }, 2000); 
   </script>
+  <script src="{% static 'football/js/home_timer.js' %}"></script>
 {% endblock %}
