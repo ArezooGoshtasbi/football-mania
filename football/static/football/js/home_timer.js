@@ -1,14 +1,34 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const matchTime = "2025-04-18T21:00:00"; 
+    const timeElements = Array.from(document.querySelectorAll(".match-card .time"));
+    const timerDiv = document.getElementById("next-match-timer");
+    if (!timerDiv || timeElements.length === 0) return;
+  
+    function findNextMatchTime() {
+      const now = new Date();
+  
+      for (let elem of timeElements) {
+        const matchTime = new Date(elem.dataset.datetime);
+        if (matchTime > now) {
+          return matchTime;
+        }
+      }
+      return null;
+    }
   
     function updateCountdown() {
+      const nextMatchTime = findNextMatchTime();
+  
+      if (!nextMatchTime) {
+        timerDiv.textContent = "No upcoming matches 💤";
+        clearInterval(timer);
+        return;
+      }
+  
       const now = new Date();
-      const matchDate = new Date(matchTime);
-      const diff = matchDate - now;
+      const diff = nextMatchTime - now;
   
       if (diff <= 0) {
-        document.getElementById("next-match-timer").textContent = "Match is starting!";
-        clearInterval(timer);
+        
         return;
       }
   
@@ -17,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const minutes = Math.floor((diff / (1000 * 60)) % 60);
       const seconds = Math.floor((diff / 1000) % 60);
   
-      document.getElementById("next-match-timer").textContent =
+      timerDiv.textContent =
         `Next Match starts in: ${days}d ${hours}h ${minutes}m ${seconds}s ⏰`;
     }
   

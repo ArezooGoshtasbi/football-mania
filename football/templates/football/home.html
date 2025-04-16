@@ -1,5 +1,7 @@
 {% extends "football/layout.html" %}
 {% load static %}
+{% load tz %}
+
 {% block body %}
   <section class="hero-section">
     <div class="hero-overlay">
@@ -18,7 +20,7 @@
       </div>
     {% endif %}
     <div id="next-match-timer" class="countdown-timer">
-      <!-- متن تایمر اینجا با جاوااسکریپت میاد -->
+      <!-- Timer text comes here with JavaScript -->
     </div>
     <h2>Upcoming Matches</h2>
     <div class="matches-list">
@@ -31,7 +33,8 @@
             </div>
             <div class="match-center">
               <div class="vs">vs</div>
-              <div class="time">
+              <div class="time"
+                  data-datetime="{% localtime on %}{{ match.utc_date|date:'c' }}{% endlocaltime %}">
                 {{ match.utc_date|date:"M d" }}-{{ match.utc_date|time:"H:i" }}
               </div>
             </div>
