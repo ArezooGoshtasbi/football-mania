@@ -95,6 +95,21 @@
   padding: 12px 16px;
   text-align: center;
 }
+#sort-score {
+  cursor: pointer;
+  position: relative;
+  font-weight: bold;
+}
+
+#sort-icon {
+  font-size: 20px;
+  color: white !important;
+  font-family: Arial, sans-serif !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
 
 .user-ranking-table thead {
   background-color: #dfece1;
