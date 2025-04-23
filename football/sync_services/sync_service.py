@@ -218,7 +218,7 @@ class SyncService:
         season_year = 2024
         all_matches = []
 
-        print(f"⚽ Fetching La Liga {season_year}-{season_year + 1} matches...")
+        print(f"⚽ Fetching La Liga {season_year} matches...")
 
         url = BASE_URL + f"/competitions/PD/matches?season={season_year}"
 

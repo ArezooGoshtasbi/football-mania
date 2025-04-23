@@ -87,17 +87,43 @@ body {
   display: block;
 }
 .countdown-timer {
-  text-align: center;
-  font-size: 22px;
+  font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 25px;
-  color: #116611;
-  background: #f2fbe8;
-  padding: 12px 20px;
+  padding: 10px 20px;
   border-radius: 12px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.05);
+  text-align: center;
+  width: fit-content;
+  margin: 0 auto 1.5rem;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+.timer-green {
+  background-color: #e0f7e9;
+  color: #2e7d32;
 }
 
+.timer-yellow {
+  background-color: #fff8e1;
+  color: #f9a825;
+}
+
+.timer-red {
+  background-color: #ffebee;
+  color: #c62828;
+}
+.pulse {
+  animation: pulse-glow 1.5s infinite;
+}
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 0px rgba(198, 40, 40, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(198, 40, 40, 1);
+  }
+  100% {
+    box-shadow: 0 0 0px rgba(198, 40, 40, 0.5);
+  }
+}
 h2 {
   text-align: center;
   font-size: 24px;

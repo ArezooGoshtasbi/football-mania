@@ -38,6 +38,16 @@ document.addEventListener("DOMContentLoaded", () => {
   
       timerDiv.textContent =
         `Next Match starts in: ${days}d ${hours}h ${minutes}m ${seconds}s ⏰`;
+      
+      const minutesLeft = diff / (1000 * 60);  
+      timerDiv.classList.remove("timer-green", "timer-yellow", "timer-red", "pulse");
+      if (minutesLeft > 120) {
+        timerDiv.classList.add("timer-green");
+      } else if (minutesLeft > 30) {
+        timerDiv.classList.add("timer-yellow");
+      } else {
+        timerDiv.classList.add("timer-red", "pulse");
+      }
     }
     const timer = setInterval(updateCountdown, 1000);
   });
