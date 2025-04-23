@@ -7,7 +7,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from django.db.models import Sum
+from django.db.models import Sum, Q
 import json
 from .models import Team, Standing, Match, Prediction, UserProfile, Comment
 from football.sync_services.sync_service import SyncService
@@ -275,3 +275,42 @@ def comments_view(request):
     comment = Comment(user=request.user, message=message)
     comment.save()
     return JsonResponse(comment.serialize(), status=201)
+
+
+def form_chart(request):
+    top_teams = Standing.objects.order_by("position")[:4]
+    data = []
+
+    for standing in top_teams:
+        team = standing.team
+        matches = Match.objects.filter(
+            Q(home_team=team) | Q(away_team=team),
+            status="FINISHED"
+        ).order_by("-utc_date")[:5]
+
+        form = []
+
+        for match in matches:
+            if match.home_score is None or match.away_score is None:
+                continue
+
+            is_home = match.home_team == team
+            goals_for = match.home_score if is_home else match.away_score
+            goals_against = match.away_score if is_home else match.home_score
+
+            if goals_for > goals_against:
+                form.append("W")
+            elif goals_for < goals_against:
+                form.append("L")    
+            else:
+                form.append("D")    
+
+        data.append({
+            "team": team.short_name or team.name,
+            "form": form[::-1] 
+        })        
+    return JsonResponse(data, safe=False)    
+
+
+def form_chart_page(request):
+    return render(request, "football/form_chart.html")

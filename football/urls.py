@@ -17,5 +17,8 @@ urlpatterns = [
     path("predict/<int:match_id>/", views.predict_match, name="predict"),
     path("profile/", views.profile_view, name="profile"),
     path("ranking/", views.user_ranking, name="user_ranking"),
-    path("comments/", views.comments_view, name="comments")
+    path("comments/", views.comments_view, name="comments"),
+    path("form-chart/", views.form_chart_page, name="form_chart_page"),
+    path("api/form-chart/", views.form_chart, name="form_chart"),
+
 ]

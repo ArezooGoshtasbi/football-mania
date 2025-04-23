@@ -1,0 +1,11 @@
+{% extends "football/layout.html" %}
+{% load static %}
+
+{% block title %}Team Form Chart{% endblock %}
+{% block body %}
+    <div class="form-chart-wrapper">
+        <canvas id="formChart"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'football/js/form_chart.js' %}"></script>
+{% endblock %}

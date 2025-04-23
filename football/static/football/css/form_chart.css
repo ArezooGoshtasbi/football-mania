@@ -1,0 +1,14 @@
+.form-chart-wrapper {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: linear-gradient(to right, #f0f9f4, #ffffff);
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(50, 150, 100, 0.1);
+  }
+
+  #formChart {
+    width: 100%;
+    height: auto;
+  }
+  
