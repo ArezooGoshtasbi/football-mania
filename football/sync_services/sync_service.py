@@ -1,6 +1,7 @@
 import requests
 import os
 import json
+import time
 from django.conf import settings
 from datetime import datetime, timedelta
 from football.constants import BASE_URL, HEADERS
@@ -222,37 +223,45 @@ class SyncService:
             with open(progress_file_path, "r") as f:
                 start_date_str = f.read().strip()
                 start_date = datetime.fromisoformat(start_date_str)
-                print(f" Resuming from: {start_date.date()}")
+                print(f"⏸️ Resuming from: {start_date.date()}")
         else:
-            start_date = datetime(season_year, 8, 1)
-            print(f" Starting from beginning: {start_date.date()}")
+            start_date = datetime(season_year, 7, 1)
+            print(f"▶️ Starting from beginning: {start_date.date()}")
 
-        end_date = datetime(season_year + 1, 6, 1)
+        end_date = datetime(season_year + 1, 7, 1)
         current = start_date
 
-        print(f"Fetching La Liga {season_year}-{season_year+1} matches...")
+        print(f"⚽ Fetching La Liga {season_year}-{season_year + 1} matches...")
 
         while current < end_date:
             date_from = current.strftime("%Y-%m-%d")
             date_to = (current + timedelta(days=5)).strftime("%Y-%m-%d")
 
             url = BASE_URL + f"/matches?competitions=2014&dateFrom={date_from}&dateTo={date_to}"
-            response = requests.get(url, headers=HEADERS)
-            print(f"{date_from} to {date_to} → {response.status_code}")
 
-            if response.status_code == 200:
-                data = response.json()
-                matches = data.get("matches", [])
-                all_matches.extend(matches)
+            # 🔁 درخواست با retry واقعی
+            success = False
+            while not success:
+                response = requests.get(url, headers=HEADERS)
+                if response.status_code == 429:
+                    print(f"🚫 Rate limit hit for {date_from} to {date_to}. Retrying in 60s...")
+                    time.sleep(60)
+                elif response.status_code == 200:
+                    data = response.json()
+                    matches = data.get("matches", [])
+                    all_matches.extend(matches)
 
-                with open(progress_file_path, "w") as progress_file:
-                    progress_file.write(date_to)
-                print(f" Progress saved: {date_to}")
-            else:
-                print(f" Failed for range {date_from} to {date_to}")
+                    with open(progress_file_path, "w") as progress_file:
+                        progress_file.write(date_to)
+                    print(f"✅ {date_from} to {date_to} → {len(matches)} matches")
+                    success = True
+                else:
+                    print(f"❌ Failed for {date_from} to {date_to} with status {response.status_code}")
+                    success = True  # چون ارور غیرقابل حل (مثلاً 404)، می‌پریم
 
             current += timedelta(days=6)
-            
+            time.sleep(2)
+
         for m in all_matches:
             if isinstance(m.get("utcDate"), datetime):
                 m["utcDate"] = m["utcDate"].isoformat()
@@ -263,7 +272,8 @@ class SyncService:
         with open(os.path.join(fixtures_path, "matches.json"), "w", encoding="utf-8") as f:
             json.dump({"matches": all_matches}, f, ensure_ascii=False, indent=4)
 
-        print(f"Total {len(all_matches)} matches saved to fixtures/matches.json ")
+        print(f"🎉 Total {len(all_matches)} matches saved to fixtures/matches.json")
+
 
 
     def load_matches_from_file(self):

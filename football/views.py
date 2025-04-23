@@ -262,7 +262,7 @@ def user_ranking(request):
 def comments_view(request):
     if request.method == "GET":
         comments = Comment.objects.order_by('-timestamp')[:50]
-        return JsonResponse([c.serialize() for c in comments], safe=False)
+        return JsonResponse([c.serialize(current_user=request.user) for c in comments], safe=False)
     
     if not request.user.is_authenticated:
         return JsonResponse({"error": "Login required"}, status=401)

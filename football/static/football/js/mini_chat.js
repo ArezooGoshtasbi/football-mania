@@ -11,6 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
           data.forEach(msg => {
             const div = document.createElement("div");
             div.className = "chat-message";
+            if (msg.is_owner) {
+              div.classList.add("my-message");
+            }       
             div.innerHTML = `<strong>${msg.user}</strong>: ${msg.message} <br><small>${msg.timestamp}</small>`;
             chatMessages.appendChild(div);
           });

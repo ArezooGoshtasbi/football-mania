@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const diff = nextMatchTime - now;
   
       if (diff <= 0) {
-        
         return;
       }
   
@@ -40,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
       timerDiv.textContent =
         `Next Match starts in: ${days}d ${hours}h ${minutes}m ${seconds}s ⏰`;
     }
-  
     const timer = setInterval(updateCountdown, 1000);
   });
   
