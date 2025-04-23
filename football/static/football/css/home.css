@@ -214,6 +214,23 @@ table {
   border-radius: 6px;
   overflow: hidden;
 }
+.champions-league {
+  background: linear-gradient(to left, #fefefe, #fff8e1); 
+  border-left: 4px solid #1a237e;
+  color: #1a237e;
+  font-weight: bold;
+}
+
+.relegation-zone {
+  background: linear-gradient(to left, #fffdfd, #fce4e4); 
+  border-left: 4px solid #d32f2f;
+  color: #b71c1c;
+  font-weight: bold;
+}
+
+.league-table tr:hover {
+  background-color: #f1f8e9;
+}
 
 th, td {
   padding: 12px 15px;
@@ -236,6 +253,32 @@ tr:nth-child(even) {
 .chart img {
   max-width: 400px;
   width: 100%;
+}
+#scrollToTopBtn {
+  display: none;
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(to bottom right, #7cb342, #2e7d32); /* سبز پررنگ‌تر و اشباع‌تر */
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  padding: 12px;
+}
+
+#scrollToTopBtn:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+}
+
+#scrollToTopBtn svg {
+  width: 24px;
+  height: 24px;
 }
 
 @media (max-width: 768px) {

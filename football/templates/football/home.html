@@ -77,7 +77,12 @@
         </thead>
         <tbody>
           {% for row in standings %}
-            <tr>
+            <tr
+              class="
+              {% if row.position <= 4 %}champions-league{% endif %}
+              {% if row.position >= 18 %}relegation-zone{% endif %}
+              " 
+            >
               <td>{{row.position}}</td>
               <td>
                 <img src="{{ row.team.logo_url }}" alt="{{ row.team.name }}" style="height: 20px; vertical-align: middle; margin-right: 8px;">
@@ -97,6 +102,11 @@
       </table>
     </div>
   </section>
+  <button id="scrollToTopBtn" title="Go to top">
+    <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24" fill="white">
+      <path d="M12 4l-8 8h5v8h6v-8h5z"/>
+    </svg>
+  </button>
   <script>
     setTimeout(() => {
       document.querySelectorAll('.flash-message').forEach(el => {
@@ -107,4 +117,5 @@
     }, 2000); 
   </script>
   <script src="{% static 'football/js/home_timer.js' %}"></script>
+  <script src="{% static 'football/js/scroll_to_top.js' %}"></script>
 {% endblock %}
