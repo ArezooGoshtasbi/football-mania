@@ -12,3 +12,40 @@
     height: auto;
   }
   
+  .match-result-section {
+    margin-top: 50px;
+    text-align: center;
+  }
+  
+  .team-pie-charts {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .pie-charts-wrapper {
+    margin-top: 40px;
+    text-align: center;
+  }
+  
+  .match-result-section h2 {
+    font-size: 1.6rem;
+    color: #2e7d32;
+    margin-bottom: 20px;
+  }
+  
+  .team-doughnuts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+  }
+  
+  .team-doughnut {
+    width: 250px;
+    background: linear-gradient(to right, #f0f9f4, #ffffff);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(50, 150, 100, 0.1);
+  }
+    

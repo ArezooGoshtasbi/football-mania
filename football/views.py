@@ -173,8 +173,9 @@ def profile_view(request):
     finished_predictions = predictions.filter(match__status="FINISHED")
     
     total_finished = finished_predictions.count()
-    correct_predictions = finished_predictions.filter(score=3).count()
-    correct_result = finished_predictions.filter(score=3).count()
+    perfect_predictions = finished_predictions.filter(score=5).count()
+    correct_predictions = finished_predictions.filter(score__in=[3, 4, 5]).count()
+    correct_result = finished_predictions.filter(score__in=[3, 4]).count()
     partially_correct = finished_predictions.filter(score__in=[1, 2]).count()
     incorrect_predictions = finished_predictions.filter(score=0).count()
     total_score = finished_predictions.aggregate(total=Sum("score"))["total"] or 0
@@ -187,6 +188,7 @@ def profile_view(request):
     return render(request, "football/profile.html", {
         "user": user,
         "total_predictions": total_predictions,
+        "perfect_predictions": perfect_predictions,
         "correct_predictions": correct_predictions,
         "correct_result": correct_result,
         "partially_correct": partially_correct,
@@ -314,3 +316,41 @@ def form_chart(request):
 
 def form_chart_page(request):
     return render(request, "football/form_chart.html")
+
+
+def match_result_pie(request):
+    top_teams = Standing.objects.order_by("position")[:4]
+    data = []
+
+    for standing in top_teams:
+        team = standing.team
+        matches = Match.objects.filter(
+            Q(home_team=team) | Q(away_team=team),
+            status="FINISHED"
+        )
+
+        wins = 0
+        draws = 0
+        losses = 0
+
+        for match in matches:
+            if match.home_score is None or match.away_score is None:
+                continue
+
+            is_home = match.home_team == team
+            goals_for = match.home_score if is_home else match.away_score
+            goals_against = match.away_score if is_home else match.home_score
+
+            if goals_for > goals_against:
+                wins += 1
+            elif goals_for < goals_against:
+                losses += 1
+            else:
+                draws += 1   
+        data.append({
+            "team": team.short_name or team.name,
+            "wins": wins,
+            "draws": draws,
+            "losses": losses
+        })
+    return JsonResponse(data, safe=False)             
