@@ -1,61 +1,57 @@
 document.addEventListener("DOMContentLoaded", () => {
-  fetch("/api/form-chart/")
+  fetch("/api/goals-bar-chart/")
     .then(response => response.json())
     .then(data => {
-      const labels = ["Game 1", "Game 2", "Game 3", "Game 4", "Game 5"];
-      const resultMap = { "W": 3, "D": 1, "L": 0 };
-
-      const ctx = document.getElementById("formChart").getContext("2d");
+      const ctx = document.getElementById("goalsChart").getContext("2d");
 
       const gradients = [
         createGradient(ctx, "#4facfe", "#00f2fe"),  // FCB
-        createGradient(ctx, "#f093fb", "#f5576c"),  // RMA
-        createGradient(ctx, "#f6d365", "#fda085"),  // ATL
-        createGradient(ctx, "#c471f5", "#fa71cd"),  // ATH
+        createGradient(ctx, "#4facfe", "#00f2fe"),  // RMA
+        createGradient(ctx, "#4facfe", "#00f2fe"),  // ATL
+        createGradient(ctx, "#4facfe", "#00f2fe"),  // ATH
       ];
 
-      const datasets = data.map((team, index) => ({
-        label: team.team,
-        data: team.form.map(r => resultMap[r]),
-        backgroundColor: gradients[index],
-        borderRadius: 10,
-        borderSkipped: false,
-        barPercentage: 0.6
-      }));
+      const borderRadius = 12;
+
       new Chart(ctx, {
         type: "bar",
-        data: { labels, datasets },
+        data: {
+          labels: data.map(t => t.team),
+          datasets: [
+            {
+              label: "Goals For",
+              data: data.map(t => t.goals_for),
+              backgroundColor: gradients,
+              borderRadius: borderRadius,
+              borderSkipped: false,
+            },
+            {
+              label: "Goals Against",
+              data: data.map(t => t.goals_against),
+              backgroundColor: "rgba(255, 99, 132, 0.5)",
+              borderRadius: borderRadius,
+              borderSkipped: false,
+            },
+          ]
+        },
         options: {
           responsive: true,
           plugins: {
-            legend: { position: "top" },
+            legend: {
+              position: "top"
+            },
             tooltip: {
               callbacks: {
-                label: function (context) {
-                  const value = context.raw;
-                  return `${context.dataset.label}: ${value === 3 ? 'Win' : value === 1 ? 'Draw' : 'Loss'}`;
-                }
+                label: context => `${context.dataset.label}: ${context.raw}`
               }
-            },
-            title: {
-              display: true,
-              text: 'Recent Form of Top 4 Teams',
-              color: '#2e7d32',
-              font: { size: 20 }
             }
           },
           scales: {
             y: {
-              ticks: {
-                stepSize: 1,
-                callback: value => value === 3 ? "W" : value === 1 ? "D" : "L"
-              },
               beginAtZero: true,
-              min: 0,
-              max: 3,
               title: {
                 display: true,
-                text: 'Result'
+                text: "Goals"
               }
             }
           }
@@ -69,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return gradient;
       }
     });
-
 
   fetch("/api/match-result-pie/")
     .then(response => response.json())

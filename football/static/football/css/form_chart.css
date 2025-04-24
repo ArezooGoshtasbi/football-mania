@@ -1,17 +1,24 @@
-.form-chart-wrapper {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-    background: linear-gradient(to right, #f0f9f4, #ffffff);
-    border-radius: 20px;
-    box-shadow: 0 0 15px rgba(50, 150, 100, 0.1);
-  }
+.goals-bar-chart-wrapper {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background: linear-gradient(to right, #f9f9f9, #ffffff);
+  border-radius: 18px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
 
-  #formChart {
-    width: 100%;
-    height: auto;
-  }
-  
+.goals-bar-chart-wrapper h2 {
+  text-align: center;
+  color: #2e7d32;
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 1.6rem;
+}
+
+#goalsChart {
+  width: 100%;
+  height: auto;
+}
   .match-result-section {
     margin-top: 50px;
     text-align: center;

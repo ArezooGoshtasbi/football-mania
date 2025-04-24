@@ -279,7 +279,7 @@ def comments_view(request):
     return JsonResponse(comment.serialize(), status=201)
 
 
-def form_chart(request):
+def goals_bar_chart(request):
     top_teams = Standing.objects.order_by("position")[:4]
     data = []
 
@@ -288,34 +288,31 @@ def form_chart(request):
         matches = Match.objects.filter(
             Q(home_team=team) | Q(away_team=team),
             status="FINISHED"
-        ).order_by("-utc_date")[:5]
+        )
 
-        form = []
+        goals_for = 0
+        goals_against = 0
 
         for match in matches:
             if match.home_score is None or match.away_score is None:
                 continue
 
             is_home = match.home_team == team
-            goals_for = match.home_score if is_home else match.away_score
-            goals_against = match.away_score if is_home else match.home_score
-
-            if goals_for > goals_against:
-                form.append("W")
-            elif goals_for < goals_against:
-                form.append("L")    
-            else:
-                form.append("D")    
+            goals_for += match.home_score if is_home else match.away_score
+            goals_against += match.away_score if is_home else match.home_score
 
         data.append({
             "team": team.short_name or team.name,
-            "form": form[::-1] 
-        })        
-    return JsonResponse(data, safe=False)    
+            "goals_for": goals_for,
+            "goals_against": goals_against,
+        })
+
+    return JsonResponse(data, safe=False)
 
 
 def form_chart_page(request):
     return render(request, "football/form_chart.html")
+
 
 
 def match_result_pie(request):
