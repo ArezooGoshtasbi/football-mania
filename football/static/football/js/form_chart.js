@@ -84,16 +84,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const resultLabels = ["Wins", "Draws", "Losses"];
-      const resultColors = [
-        ["#4facfe", "#00f2fe"],  // FCB
-        ["#4facfe", "#00f2fe"],  // RMA
-        ["#4facfe", "#00f2fe"],  // ATL
-        ["#4facfe", "#00f2fe"],  // ATH
-      ];
-
+    
       data.forEach((team, index) => {
         const ctx = document.getElementById(`doughnut-${team.team}`).getContext("2d");
-        const gradient = createGradient(ctx, resultColors[index][0], resultColors[index][1]);
+        const gradientBlue = createGradient(ctx, "#4facfe", "#00f2fe"); // Wins
+        const gradientYellow = createGradient(ctx, "#fcd34d", "#facc15"); // Draws (زرد روشن به طلایی)
+        const gradientPink = createGradient(ctx, "#fda4af", "#fb7185"); 
 
         new Chart(ctx, {
           type: "doughnut",
@@ -101,11 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
             labels: resultLabels,
             datasets: [{
               data: [team.wins, team.draws, team.losses],
-              backgroundColor: [
-                gradient,
-                "rgba(255, 205, 86, 0.8)",  // draw
-                "rgba(255, 99, 132, 0.8)",  // loss
-              ],
+              backgroundColor: [gradientBlue, gradientYellow, gradientPink],
               borderWidth: 1
             }]
           },
