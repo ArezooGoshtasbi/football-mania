@@ -8,11 +8,9 @@
 }
 
 .goals-bar-chart-wrapper h2 {
-  text-align: center;
+  font-size: 1.6rem;
   color: #2e7d32;
   margin-bottom: 20px;
-  font-weight: 600;
-  font-size: 1.6rem;
 }
 
 #goalsChart {
