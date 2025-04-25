@@ -248,7 +248,31 @@ table {
 
 th, td {
   padding: 12px 15px;
+  text-align: center;
+}
+
+.team-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.team-cell img {
+  height: 20px;
+  width: 20px;
+  object-fit: contain;
+}
+
+thead th:nth-child(2) {
   text-align: left;
+  padding-left: 25px;
+}
+
+td:nth-child(2),
+th:nth-child(2) {
+  max-width: 150px;
+  text-overflow: ellipsis;
 }
 
 th {
@@ -258,6 +282,37 @@ th {
 
 tr:nth-child(even) {
   background-color: #f2f2f2;
+}
+
+.form-icons {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+}
+
+.circle-icon {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+}
+
+.circle-icon.win {
+  background-color: #4CAF50;
+}
+
+.circle-icon.draw {
+  background-color: #9E9E9E; 
+}
+
+.circle-icon.loss {
+  background-color: #E53935; 
 }
 
 .chart {

@@ -73,31 +73,45 @@
             <th>GF</th>
             <th>GA</th>
             <th>GD</th>
+            <th>Last 5</th>
           </tr>
         </thead>
         <tbody>
-          {% for row in standings %}
+          {% for team in standings %}
             <tr
               class="
-              {% if row.position <= 4 %}champions-league{% endif %}
-              {% if row.position >= 18 %}relegation-zone{% endif %}
-              " 
+              {% if team.standing.position <= 4 %}champions-league{% endif %}
+              {% if team.standing.position >= 18 %}relegation-zone{% endif %}
+              "
             >
-              <td>{{row.position}}</td>
+              <td>{{ team.standing.position }}</td>
               <td>
-                <img src="{{ row.team.logo_url }}" alt="{{ row.team.name }}" style="height: 20px; vertical-align: middle; margin-right: 8px;">
-                {{row.team.name}}
+                <div class="team-cell">
+                  <img src="{{ team.standing.team.logo_url }}" alt="{{ team.standing.team.name }}" style="height: 20px; vertical-align: middle; margin-right: 8px;">
+                  {{ team.standing.team.name }}
+                </div>
               </td>
-              <td>{{row.played}}</td>
-              <td>{{row.points}}</td>
-              <td>{{row.wins}}</td>
-              <td>{{row.draws}}</td>
-              <td>{{row.losses}}</td>
-              <td>{{row.goals_for}}</td>
-              <td>{{row.goals_against}}</td>
-              <td>{{ row.goal_difference }}</td>
+              <td>{{ team.standing.played }}</td>
+              <td>{{ team.standing.points }}</td>
+              <td>{{ team.standing.wins }}</td>
+              <td>{{ team.standing.draws }}</td>
+              <td>{{ team.standing.losses }}</td>
+              <td>{{ team.standing.goals_for }}</td>
+              <td>{{ team.standing.goals_against }}</td>
+              <td>{{ team.standing.goal_difference }}</td>
+              <td class="form-icons">
+                {% for result in team.form reversed %}
+                  {% if result == "W" %}
+                    <span class="circle-icon win">&#10003;</span>
+                  {% elif result == "D" %}
+                    <span class="circle-icon draw">&#8211;</span>
+                  {% elif result == "L" %}
+                    <span class="circle-icon loss">&#10007;</span>
+                  {% endif %}
+                {% endfor %}
+              </td>
             </tr>
-          {% endfor %} 
+          {% endfor %}
         </tbody>
       </table>
     </div>

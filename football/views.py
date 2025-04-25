@@ -61,18 +61,45 @@ def register(request):
 
 
 def home(request):
-    standings = Standing.objects.all().order_by("position")
+    standings = Standing.objects.select_related("team").order_by("position")
+    standings_with_form = []
+    for standing in standings:
+        team = standing.team
+        matches = Match.objects.filter(
+            Q(home_team=team) | Q(away_team=team),
+            status="FINISHED"
+        ).order_by("-utc_date")[:5]
+
+        form = []
+        for match in matches:
+            if match.home_score is None or match.away_score is None:
+                continue
+
+            is_home = match.home_team == team
+            goals_for = match.home_score if is_home else match.away_score
+            goals_against = match.away_score if is_home else match.home_score
+
+            if goals_for > goals_against:
+                form.append("W")
+            elif goals_for == goals_against:
+                form.append("D")
+            else:
+                form.append("L")
+
+        standings_with_form.append({
+            "standing": standing,
+            "form": form
+        })
 
     now = timezone.now()
     one_week_later = (now + timedelta(days=7)).replace(hour=23, minute=59, second=59)
-
     upcoming_matches = Match.objects.filter(
         status__in=["SCHEDULED", "TIMED"], 
         utc_date__range=(now, one_week_later)
     ).order_by("utc_date")
 
     return render(request, "football/home.html", {
-        "standings": standings,
+        "standings": standings_with_form,
         "upcoming_matches": upcoming_matches
     })
     
