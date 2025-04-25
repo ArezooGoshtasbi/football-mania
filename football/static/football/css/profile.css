@@ -1,4 +1,3 @@
-
 .profile-section {
     max-width: 900px;
     margin: 40px auto;
@@ -45,13 +44,16 @@
     font-size: 16px;
     color: #555;
 }
+
 .highlight-green {
     color: #116611;
     font-weight: bold;
 }
+
 .profile-card.highlight {
     background-color: #e6f4ea;
-  }
+}
+
 .profile-card li strong {
     color: #116611;
 }
@@ -77,6 +79,7 @@
 .prediction-table td {
     background-color: #fafafa;
 }
+
 .status-perfect {
     color: #116611;
     font-weight: bold;
@@ -100,9 +103,36 @@
     font-weight: bold;
     padding: 4px 10px;
 }
+
 .status-pending {
     color: #5e35b1;
     font-weight: bold;
     padding: 4px 10px;
   }
   
+@media (max-width: 768px) {
+    .profile-section {
+        padding: 10px;
+        margin: 20px 10px;
+    }
+
+    .profile-card {
+        padding: 15px;
+    }
+
+    .profile-card li {
+        font-size: 14px;
+    }
+
+    .prediction-table {
+        font-size: 12px;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .prediction-table th,
+    .prediction-table td {
+        padding: 8px;
+    }
+}

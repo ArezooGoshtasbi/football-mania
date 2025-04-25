@@ -64,7 +64,7 @@ def home(request):
     standings = Standing.objects.all().order_by("position")
 
     now = timezone.now()
-    one_week_later = now + timedelta(days=7)
+    one_week_later = (now + timedelta(days=7)).replace(hour=23, minute=59, second=59)
 
     upcoming_matches = Match.objects.filter(
         status__in=["SCHEDULED", "TIMED"], 
@@ -225,12 +225,10 @@ def user_ranking(request):
         total_predictions_count += total_finished
         total_points += profile.score
 
+        user_total_score = user_predictions.aggregate(total=Sum("score"))["total"] or 0
         max_possible_score = total_finished * 5
-        performance = round((profile.score / max_possible_score) * 100, 2) if max_possible_score > 0 else 0
-
-        perfect_predictions = user_predictions.filter(score=5).count()
-        accuracy = round((perfect_predictions / total_finished) * 100, 2)
-
+        accuracy = round((user_total_score / max_possible_score) * 100, 2) if max_possible_score > 0 else 0
+        performance = accuracy  
         if accuracy > highest_accuracy:
             highest_accuracy = accuracy
             top_accuracy = {
@@ -246,6 +244,7 @@ def user_ranking(request):
             "total_finished": total_finished,
             "is_current_user": user == request.user
         })
+
     if ranking_data:
         top_user = max(ranking_data, key=lambda x: x["score"])
 
@@ -312,7 +311,6 @@ def goals_bar_chart(request):
 
 def form_chart_page(request):
     return render(request, "football/form_chart.html")
-
 
 
 def match_result_pie(request):

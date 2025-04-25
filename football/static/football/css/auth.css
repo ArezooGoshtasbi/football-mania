@@ -1,85 +1,119 @@
 body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f9f9f9;
-  }
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
+}
   
+.auth-container {
+  display: flex;
+  height: 100vh;
+}
+
+.auth-left {
+  flex: 1.2;
+  background: url("/static/football/images/bg-login.jpg") center center/cover no-repeat;
+  color: white;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-left h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.auth-left p {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.auth-right {
+  flex: 0.8;
+  background-color: white;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-right h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+form input {
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+form button {
+  background-color: #228B22;
+  color: white;
+  padding: 10px 25px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  display: inline-block;
+  margin: 0 auto;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+form button:hover {
+  background-color: #1e7a1e;
+}
+
+.auth-links {
+  margin-top: 20px;
+}
+
+.auth-links a {
+  color: #228B22;
+  text-decoration: none;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
   .auth-container {
-    display: flex;
-    height: 100vh;
-  }
-  
-  .auth-left {
-    flex: 1.2;
-    background: url("/static/football/images/bg-login.jpg") center center/cover no-repeat;
-    color: white;
-    padding: 40px;
-    display: flex;
     flex-direction: column;
-    justify-content: center;
+    height: auto;
   }
-  
-  .auth-left h1 {
-    font-size: 36px;
-    margin-bottom: 10px;
-  }
-  
-  .auth-left p {
-    font-size: 18px;
-    line-height: 1.6;
-  }
-  
-  .auth-right {
-    flex: 0.8;
-    background-color: white;
-    padding: 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
-  .auth-right h2 {
-    margin-bottom: 20px;
-    font-size: 24px;
-  }
-  
-  form input {
-    display: block;
+
+  .auth-left, .auth-right {
+    flex: unset;
     width: 100%;
-    margin-bottom: 15px;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-  }
-  
-  form button {
-    background-color: #228B22;
-    color: white;
-    padding: 10px 25px;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    display: inline-block;
-    margin: 0 auto;
+    padding: 30px 20px;
     text-align: center;
-    transition: background-color 0.3s ease;
   }
-  
-  form button:hover {
-    background-color: #1e7a1e;
+
+  .auth-left {
+    background-position: top;
   }
-  
-  .auth-links {
-    margin-top: 20px;
+
+  .auth-left h1 {
+    font-size: 28px;
   }
-  
-  .auth-links a {
-    color: #228B22;
-    text-decoration: none;
+
+  .auth-left p {
+    font-size: 16px;
   }
-  
-  .auth-links a:hover {
-    text-decoration: underline;
+
+  .auth-right h2 {
+    font-size: 22px;
   }
+
+  form button {
+    width: 100%;
+  }
+}
