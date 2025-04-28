@@ -119,7 +119,7 @@
 .pagination {
     display: flex;
     align-items: center;
-    gap: 15px; /* فاصله بین آیتم‌ها */
+    gap: 15px; 
     flex-wrap: wrap;
 }
   
