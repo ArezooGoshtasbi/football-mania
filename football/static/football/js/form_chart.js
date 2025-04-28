@@ -88,8 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
       data.forEach((team, index) => {
         const ctx = document.getElementById(`doughnut-${team.team}`).getContext("2d");
         const gradientBlue = createGradient(ctx, "#4facfe", "#00f2fe"); // Wins
-        const gradientYellow = createGradient(ctx, "#fcd34d", "#facc15"); // Draws (زرد روشن به طلایی)
-        const gradientPink = createGradient(ctx, "#fda4af", "#fb7185"); 
+        const gradientYellow = createGradient(ctx, "#fcd34d", "#facc15"); // Draws 
+        const gradientPink = createGradient(ctx, "#fda4af", "#fb7185");  // Losses
 
         new Chart(ctx, {
           type: "doughnut",
