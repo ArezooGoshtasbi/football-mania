@@ -21,5 +21,6 @@ urlpatterns = [
     path("form-chart/", views.form_chart_page, name="form_chart_page"),
     path("comments/", views.comments_view, name="comments"),
     path("api/match-result-pie/", views.match_result_pie, name="match_result_pie"),
+    path('prediction/<int:pk>/edit/', views.edit_prediction, name='edit_prediction'),
 
 ]

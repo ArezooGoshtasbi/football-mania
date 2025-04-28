@@ -1,4 +1,6 @@
 {% extends "football/layout.html" %}
+{% load static %}
+
 {% block body %}
     <section class="profile-section">
         <h2>{{user.username}}'s Profile</h2>
@@ -41,7 +43,19 @@
                             <tr>
                                 <td>{{ p.match.home_team.short_name }} <strong>vs</strong> {{ p.match.away_team.short_name }}</td>
                                 <td>{{ p.match.utc_date|date:"M d, H:i" }}</td>
-                                <td>{{ p.home_goals }} - {{ p.away_goals }}</td>
+                                <td class="prediction-cell-{{ p.id }}">
+                                    {{ p.home_goals }} - {{ p.away_goals }}
+                                    {% if p.match.status != "FINISHED" %}
+                                    <button class="btn btn-sm btn-link edit-btn" 
+                                        data-id="{{ p.id }}" 
+                                        data-home="{{ p.home_goals }}" 
+                                        data-away="{{ p.away_goals }}" 
+                                        data-result="{{ p.result }}">
+                                        ✏️
+                                  </button>
+                                  
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% if p.match.home_score != None and p.match.away_score != None %}
                                         {{ p.match.home_score }} - {{ p.match.away_score }}
@@ -78,4 +92,39 @@
             {% endif %}    
         </div>
     </section>
+    <div class="modal fade" id="editPredictionModal" tabindex="-1" role="dialog" aria-labelledby="editPredictionModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPredictionModalLabel">Edit Prediction</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPredictionForm">
+                        <input type="hidden" id="predictionId" name="predictionId">
+                        <div class="form-group">
+                            <label for="result">Choose the match result:</label>
+                            <select class="form-control" id="result" name="result" required>
+                              <option value="HOME">Home Win</option>
+                              <option value="DRAW">Draw</option>
+                              <option value="AWAY">Away Win</option>
+                            </select>
+                          </div>                          
+                        <div class="form-group">
+                            <label for="homeScore">Home Team Score</label>
+                            <input type="number" class="form-control" id="homeScore" name="home_score" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="awayScore">Away Team Score</label>
+                            <input type="number" class="form-control" id="awayScore" name="away_score" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'football/js/edit_prediction.js' %}"></script>
 {% endblock %}

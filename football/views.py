@@ -376,3 +376,43 @@ def match_result_pie(request):
             "losses": losses
         })
     return JsonResponse(data, safe=False)             
+
+
+@csrf_exempt
+def edit_prediction(request, pk):
+    if request.method == "POST":
+        try:
+            prediction = Prediction.objects.get(pk=pk, user=request.user)
+            match = prediction.match
+
+            if timezone.now() > match.utc_date - timedelta(hours=2):
+                return JsonResponse({"success": False, "error": "Too late to edit this prediction."})
+
+            result = request.POST.get('result')
+            home_goals = int(request.POST.get('home_score'))
+            away_goals = int(request.POST.get('away_score'))
+
+            if home_goals < 0 or away_goals < 0:
+                return JsonResponse({"success": False, "error": "Goals cannot be negative."})
+
+            if result == "HOME" and home_goals <= away_goals:
+                return JsonResponse({"success": False, "error": "For a Home Win, home goals must be greater than away goals."})
+
+            if result == "AWAY" and away_goals <= home_goals:
+                return JsonResponse({"success": False, "error": "For an Away Win, away goals must be greater than home goals."})
+
+            if result == "DRAW" and home_goals != away_goals:
+                return JsonResponse({"success": False, "error": "For a Draw, goals must be equal."})
+
+            prediction.result = result
+            prediction.home_goals = home_goals
+            prediction.away_goals = away_goals
+            prediction.save()
+
+            return JsonResponse({"success": True})
+
+        except Prediction.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Prediction not found."})
+
+    return JsonResponse({"success": False, "error": "Invalid request."})
+

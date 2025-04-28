@@ -4,6 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Football Mania{% endblock %}</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
         <link href="{% static 'football/css/auth.css' %}" rel="stylesheet">
         <link href="{% static 'football/css/navbar.css' %}" rel="stylesheet">
         <link href="{% static 'football/css/home.css' %}" rel="stylesheet">
@@ -37,6 +38,7 @@
         <main>
           {% block body %}{% endblock %}
         </main>
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
       </body>
-      
 </html>
