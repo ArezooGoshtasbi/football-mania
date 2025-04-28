@@ -13,8 +13,7 @@ from .models import Team, Standing, Match, Prediction, UserProfile, Comment
 from football.sync_services.sync_service import SyncService
 from datetime import timedelta
 from django.utils import timezone
-
-
+from django.core.paginator import Paginator
 
 # Create your views here.
 def login_view(request):
@@ -194,7 +193,11 @@ def predict_match(request, match_id):
 @login_required
 def profile_view(request):
     user = request.user
-    predictions = Prediction.objects.filter(user=user)
+    predictions = Prediction.objects.filter(user=user).order_by('-match__utc_date')
+
+    paginator = Paginator(predictions, 10)
+    page_number = request.GET.get('page')
+    page_predictions = paginator.get_page(page_number)
 
     total_predictions = predictions.count()
     finished_predictions = predictions.filter(match__status="FINISHED")
@@ -221,7 +224,7 @@ def profile_view(request):
         "partially_correct": partially_correct,
         "incorrect_predictions": incorrect_predictions,
         "success_rate": success_rate,
-        "predictions": predictions,
+        "predictions": page_predictions,
         "has_predictions": has_predictions,
         "user_score": user_profile.score,
         "total_finished": total_finished

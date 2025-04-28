@@ -27,6 +27,7 @@
         <div class="profile-card">
             <h3>Prediction History</h3>
             {% if has_predictions %}
+                 <a id="predictions"></a>
                 <table class="prediction-table">
                     <thead>
                         <tr>
@@ -87,6 +88,19 @@
                             {% endfor %}
                     </tbody>
                 </table>
+                <div class="pagination-wrapper">
+                    <div class="pagination">
+                      {% if predictions.has_previous %}
+                        <a href="?page={{ predictions.previous_page_number }}#predictions" class="page-btn">Previous</a>
+                      {% endif %}
+                  
+                      <span class="page-info">Page {{ predictions.number }} of {{ predictions.paginator.num_pages }}</span>
+                  
+                      {% if predictions.has_next %}
+                        <a href="?page={{ predictions.next_page_number }}#predictions" class="page-btn">Next</a>
+                      {% endif %}
+                    </div>
+                </div> 
             {% else %}      
                 <p>No predictions yet.</p>
             {% endif %}    
