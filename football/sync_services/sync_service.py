@@ -1,37 +1,23 @@
-import requests
-import os
-import json
-import time
-from django.conf import settings
-from datetime import datetime, timedelta
+from datetime import datetime
 from football.constants import BASE_URL, HEADERS
-from football.models import Team, Season, Player, Standing
-from football.sync_services.sync_match import SyncMatch
-from football.sync_services.sync_standings import SyncStandings
+from football.models import Team, Season, Player, Standing, Match, ScheduledTask
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
+from django.utils import timezone
 
 
 class SyncService:
-    sync_match: SyncMatch
-    sync_standings: SyncStandings
-
     def __init__(self):
-        self.sync_match = SyncMatch()
-        self.sync_standings = SyncStandings()
+        self.scheduler = BackgroundScheduler()
+
 
     def sync_teams_and_players(self):
-        url = BASE_URL + "/competitions/PD/teams"
-        response = requests.get(url, headers=HEADERS)
-        print(f"Responce recived {response.status_code}")
-
-        if response.status_code == 200:
-            data = response.json()
-            for team in data['teams']:
-                db_team = self.save_team(team)
-                squad = team.get("squad",[])
-                for player in squad:
-                    self.save_player(player, db_team)
-        else:
-            print("Error:", response.status_code)
+        teams = self.api_client.fetch_teams()
+        for team in teams:
+            db_team = self.save_team(team)
+            squad = team.get("squad",[])
+            for player in squad:
+                self.save_player(player, db_team)
     
 
     def save_team(self, team):
@@ -89,20 +75,7 @@ class SyncService:
 
 
     def sync_season(self):
-        url = BASE_URL + "/competitions/PD"
-        response = requests.get(url, headers=HEADERS)
-        print(f"Responce recived {response.status_code}")
-
-        season = None
-
-        if response.status_code == 200:
-            data = response.json()
-            # current season
-            season = self.save_season(data.get("currentSeason"))
-        else:
-            print("Failed to fetch season data:", response.status_code)
-
-        return season
+        return self.save_season(self.api_client.fetch_season())
 
 
     def save_season(self, season_data):
@@ -134,183 +107,132 @@ class SyncService:
 
         return season
 
+
     
-    def fetch_and_save_teams_to_file(self):
-        url = BASE_URL + "/competitions/PD/teams"
-        response = requests.get(url, headers=HEADERS)
-        print(f"Responce recived {response.status_code}")
+    def sync_matches(self, dateFrom, dateTo):
+        matches = self.api_client.fetch_season(dateFrom, dateTo)
 
-        if response.status_code == 200:
-            data = response.json()
-            fixtures_path = os.path.join(settings.BASE_DIR, "fixtures")
-            os.makedirs(fixtures_path, exist_ok=True)
-            with open("fixtures/teams.json", "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=4)
-
-            print("Teams and players saved to fixtures/teams.json")    
-        else:
-            print("Failed to fetch teams")
-
-
-    def load_teams_from_file(self):
-        fixtures_path = os.path.join(settings.BASE_DIR, "fixtures", "teams.json")
-
-        try:
-            with open(fixtures_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-
-            teams = data.get("teams", [])    
-            print(f"Loaded {len(teams)} teams from file")
-
-            for team in teams:
-                db_team = self.save_team(team)
-                squad = team.get("squad", [])
-
-                for player in squad:
-                    self.save_player(player, db_team)
-
-            print("Teams and players synced from file")   
-
-        except FileNotFoundError:
-            print("File fixtures/teams.json not found.")         
-
-
-    def fetch_and_save_season_to_file(self):
-        url = BASE_URL + "/competitions/PD"
-        response = requests.get(url, headers=HEADERS)
-        print(f"Responce recived {response.status_code}")
-
-        if response.status_code == 200:
-            data = response.json()
-
-            current_season = data.get("currentSeason")
-            if not current_season:
-                print("No current season data find.")
-                return
-            
-            fixtures_path = os.path.join(settings.BASE_DIR, "fixtures")
-            os.makedirs(fixtures_path, exist_ok=True)
-
-            file_path = os.path.join(fixtures_path, "season.json")
-            with open(file_path, "w", encoding="utf-8") as f:
-                json.dump(current_season, f, ensure_ascii=False, indent=4)
-
-            print(f"Season saved to {file_path}")    
-        else:
-            print("Failed fo fetch season")    
-
-
-    def load_season_from_file(self):
-        fixtures_path = os.path.join(settings.BASE_DIR, "fixtures", "season.json")
-
-        try:
-            with open(fixtures_path, "r", encoding="utf-8") as f:
-                season_data = json.load(f)        
-
-            season = self.save_season(season_data)    
-            print("Season loaded from file and saved to DB")
-
-        except FileNotFoundError:
-            print("season.json file not found.")   
-
-
-    def fetch_and_save_matches_to_file(self):
-        season_year = 2024
-        all_matches = []
-
-        print(f"⚽ Fetching La Liga {season_year} matches...")
-
-        url = BASE_URL + f"/competitions/PD/matches?season={season_year}"
-
-        response = requests.get(url, headers=HEADERS)
-        if response.status_code == 200:
-            data = response.json()
-            matches = data.get("matches", [])
-            all_matches = matches
-
-            for m in all_matches:
-                if isinstance(m.get("utcDate"), datetime):
-                    m["utcDate"] = m["utcDate"].isoformat()
-
-            fixtures_path = os.path.join(settings.BASE_DIR, "fixtures")
-            os.makedirs(fixtures_path, exist_ok=True)
-
-            with open(os.path.join(fixtures_path, "matches.json"), "w", encoding="utf-8") as f:
-                json.dump({"matches": all_matches}, f, ensure_ascii=False, indent=4)
-
-            print(f"🎉 Total {len(all_matches)} matches saved to fixtures/matches.json")
-
-        else:
-            print(f"❌ Failed with status {response.status_code}")
-
-        
-
-    def load_matches_from_file(self):
-        fixtures_path = os.path.join(settings.BASE_DIR, "fixtures", "matches.json")
-
-        try:
-            with open(fixtures_path, "r", encoding="utf-8") as f:
-                data = json.load(f)     
-
-            matches = data.get("matches", [])    
-            print(f" Loaded {len(matches)} matches from file")
-
+        if matches is not None:
             for match in matches:
-                self.sync_match.save_match(match)
-
-            print("Matches synced from file")    
-
-        except FileNotFoundError:
-            print("matches.json file not found")    
-
-
-    def fetch_and_save_standings_to_file(self):
-        standings = self.sync_standings.fetch_standings()
+                self.save_match(match)
+        else:
+            print("No Match Was Saved!")
     
-        table = standings[0].get("table", [])
 
-        fixtures_path = os.path.join(settings.BASE_DIR, "fixtures")
-        os.makedirs(fixtures_path, exist_ok=True)
+    def save_match(self, match):
+        id = match["id"]
+        season = Season.objects.get(id=match["season"]["id"])
+        home_team = Team.objects.get(id=match["homeTeam"]["id"])
+        away_team = Team.objects.get(id=match["awayTeam"]["id"])
+        matchday = match["matchday"]
 
-        with open(os.path.join(fixtures_path, "standings.json"), "w", encoding="utf-8") as f:
-            json.dump(table, f, ensure_ascii=False, indent=4)
+        utc_date_raw = match["utcDate"]
+        if isinstance(utc_date_raw, str):
+            utc_date = datetime.fromisoformat(utc_date_raw.replace("Z", "+00:00"))
+        else:
+            utc_date = utc_date_raw
 
-        print(f" Standings saved to fixtures/standings.json")
+        status = match["status"]
+        score = match.get("score", {})
+        home_score = None
+        away_score = None
+        if score:
+            full_time = score.get("fullTime", {})
+            home_score = full_time.get("home")
+            away_score = full_time.get("away")
+
+        updated_at = datetime.now()
+
+        match, created = Match.objects.update_or_create(
+            id=id,
+            defaults={
+                'season': season,
+                'home_team': home_team,
+                'away_team': away_team,
+                'matchday': matchday,
+                'utc_date': utc_date,
+                'status': status,
+                'home_score': home_score,
+                'away_score': away_score,
+                'updated_at': updated_at
+            }
+        )
+
+        if created:
+            print(f" Match created: {id}")
+        else:
+            print(f" Match updated: {id}")
 
 
-
-    def load_standings_from_file(self):
-        file_path = os.path.join(settings.BASE_DIR, "fixtures", "standings.json")
+    def sync_matches_wrapper(self, task_id, date_from, date_to):
+        task = ScheduledTask.objects.get(id=task_id)
+        task.attempt += 1
+        task.updated_at = timezone.now()
+        task.save()
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                table = json.load(f)
+            self.sync_matches(date_from, date_to)
 
-            season = Season.objects.latest("start_date")  
+            task.status = 'done'
+            task.save()
 
-            Standing.objects.filter(season=season).delete()
+        except Exception as e:
+            print(f"Task {task.name} failed: {e}")
+            task.save()
 
-            for item in table:
-                team_id = item["team"]["id"]
-                team = Team.objects.get(id=team_id)
 
-                Standing.objects.create(
-                    season=season,
-                    team=team,
-                    position=item.get("position"),
-                    played=item.get("playedGames"),
-                    wins=item.get("won"),
-                    draws=item.get("draw"),
-                    losses=item.get("lost"),
-                    points=item.get("points"),
-                    form=item.get("form", ""),
-                    goals_for=item.get("goalsFor"),
-                    goals_against=item.get("goalsAgainst"),
-                    goal_difference=item.get("goalDifference"),
+    def schedule_pending_tasks(self):
+        now = timezone.now()
+        pending_tasks = ScheduledTask.objects.filter(status='scheduled')
+
+        for task in pending_tasks:
+            run_time = task.run_at
+            payload = task.payload or {}  # assuming payload has dateFrom and dateTo
+
+            date_from = payload.get('dateFrom')
+            date_to = payload.get('dateTo')
+
+            if not date_from or not date_to:
+                print(f"Task {task.id} missing required parameters. Skipping.")
+                continue
+
+            if run_time <= now:
+                # If the time already passed, execute immediately
+                self.sync_matches_wrapper(task.id, date_from, date_to)
+            else:
+                # Schedule for future
+                self.scheduler.add_job(
+                    self.sync_matches_wrapper,
+                    'date',
+                    run_date=run_time,
+                    args=[task.id, date_from, date_to]
                 )
-            print(" Standings loaded into DB from file")
 
-        except FileNotFoundError:
-            print(" standings.json not found")
-            
+        self.scheduler.start()
     
+
+    def update_standings(self, standings):
+        season = Season.objects.latest("start_date")  
+
+        Standing.objects.filter(season=season).delete()
+
+        for item in standings:
+            team_id = item["team"]["id"]
+            team = Team.objects.get(id=team_id)
+
+            Standing.objects.create(
+                season=season,
+                team=team,
+                position=item.get("position"),
+                played=item.get("playedGames"),
+                wins=item.get("won"),
+                draws=item.get("draw"),
+                losses=item.get("lost"),
+                points=item.get("points"),
+                form=item.get("form", ""),
+                goals_for=item.get("goalsFor"),
+                goals_against=item.get("goalsAgainst"),
+                goal_difference=item.get("goalDifference"),
+            )
+        
+        print(f"{len(standings)} Standings updated!")

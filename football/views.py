@@ -9,6 +9,8 @@ from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Sum, Q
 import json
+
+from football.sync_services.seed_service import SeedService
 from .models import Team, Standing, Match, Prediction, UserProfile, Comment
 from football.sync_services.sync_service import SyncService
 from datetime import timedelta
@@ -120,28 +122,25 @@ def team(request):
     return JsonResponse(list(teams), safe=False)
 
 
-def sync_teams_from_file(request):
-    service = SyncService()
-    service.load_teams_from_file()
-    return HttpResponse("Teams and players loaded from file and synced.")
+# TODO needs admin user
+@csrf_exempt
+@require_http_methods(["POST"])
+def create_seed(request):
+    seed_service = SeedService()
+    seed_service.create_seed_files()
+    return HttpResponse("Seed files were created!")
 
 
-def sync_season_from_file(request):
-    service = SyncService()
-    service.load_season_from_file()
-    return HttpResponse("Season synced from file.")
-
-
-def sync_matches_from_file(request):
-    service = SyncService()
-    service.load_matches_from_file()
-    return HttpResponse("Matches  synced from file.")
-
-
-def sync_standings_from_file(request):
-    service = SyncService()
-    service.load_standings_from_file()
-    return HttpResponse("Standings  synced from file.")
+# TODO needs admin user
+@csrf_exempt
+@require_http_methods(["POST"])
+def load_seed(request):
+    seed_service = SeedService()
+    seed_service.load_teams_from_file()
+    seed_service.load_season_from_file()
+    seed_service.load_matches_from_file()
+    seed_service.load_standings_from_file()
+    return HttpResponse("Season was created successfully.")
 
 
 @login_required
