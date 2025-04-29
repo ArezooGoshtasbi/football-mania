@@ -136,10 +136,7 @@ def create_seed(request):
 @require_http_methods(["POST"])
 def load_seed(request):
     seed_service = SeedService()
-    seed_service.load_teams_from_file()
-    seed_service.load_season_from_file()
-    seed_service.load_matches_from_file()
-    seed_service.load_standings_from_file()
+    seed_service.load_seed_files()
     return HttpResponse("Season was created successfully.")
 
 

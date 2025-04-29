@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+import sys
 
 
 class FootballConfig(AppConfig):
@@ -6,6 +7,9 @@ class FootballConfig(AppConfig):
     name = 'football'
 
     def ready(self):
-        from football.sync_services.update_service import UpdateService
-        update_service = UpdateService()
-        update_service.sync_to_latest()
+        # check if the app is running and doesn't come from migration
+        if 'runserver' in sys.argv:
+            from football.sync_services.sync_service import SyncService
+            sync_service = SyncService()
+            sync_service.create_scheduled_tasks()
+

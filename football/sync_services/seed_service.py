@@ -2,8 +2,8 @@ from football.sync_services.api_client import ApiClient
 import os
 import json
 from django.conf import settings
-from datetime import datetime, timedelta
-from football.models import Team, Season, Player, Standing
+from datetime import datetime
+from football.models import Team, Season, Standing, Match
 from football.sync_services.sync_service import SyncService
 
 

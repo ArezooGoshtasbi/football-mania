@@ -79,16 +79,7 @@ class UserProfile(models.Model):
     
     def __str__(self):
         return self.user.username
-    
 
-class ScheduledTask(models.Model):
-    execution_date = models.DateTimeField() 
-    executed_date = models.DateTimeField()
-    status = models.CharField(max_length=30) #EXECUTED, IN_PROGRESS, NULL
-
-    def __str__(self):
-        return f"{self.execution_date} - {self.status}"
-    
 
 class Player(models.Model):
     id = models.IntegerField(primary_key=True)

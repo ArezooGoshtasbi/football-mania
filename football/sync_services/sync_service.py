@@ -1,14 +1,41 @@
-from datetime import datetime
-from football.constants import BASE_URL, HEADERS
-from football.models import Team, Season, Player, Standing, Match, ScheduledTask
+from datetime import datetime, timedelta
+from football.models import Prediction, Team, Season, Player, Standing, Match, UserProfile
 from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime
-from django.utils import timezone
+from datetime import datetime, timezone
+from football.sync_services.api_client import ApiClient
+from django.core.exceptions import ObjectDoesNotExist
+from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
+
+from football.types import PredictionStatus
+
+def job_listener(event):
+    if event.exception:
+        print(f"The job crashed :(")
+    else:
+        print(f"The job worked fine!")
 
 
 class SyncService:
     def __init__(self):
         self.scheduler = BackgroundScheduler()
+        self.scheduler.add_listener(job_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
+        self.api_client = ApiClient()
+
+    def calculatePredictionScore(self, prediction: Prediction):
+        total_score = 0
+        if prediction.result == PredictionStatus.DRAW.name and prediction.match.away_score == prediction.match.home_score:
+            total_score += 3
+        elif prediction.result == PredictionStatus.HOME.name and prediction.match.home_score > prediction.match.away_score:
+            total_score += 3
+        elif prediction.result == PredictionStatus.AWAY.name and prediction.match.home_score < prediction.match.away_score:
+            total_score += 3
+        
+        if prediction.away_goals == prediction.match.away_score:
+            total_score += 1
+        if prediction.home_goals == prediction.match.home_score:
+            total_score += 1
+        
+        return total_score
 
 
     def sync_teams_and_players(self):
@@ -107,16 +134,35 @@ class SyncService:
 
         return season
 
-
     
-    def sync_matches(self, dateFrom, dateTo):
-        matches = self.api_client.fetch_season(dateFrom, dateTo)
+    def run_sync(self, season_year):
+        print("Running the sync ...")
+        self.update_standings()
+        api_matches = self.api_client.fetch_all_matches(season_year)
+        print(api_matches)
 
-        if matches is not None:
-            for match in matches:
-                self.save_match(match)
-        else:
-            print("No Match Was Saved!")
+        for api_match in api_matches:
+            match = Match.objects.filter(id=api_match["id"]).first()
+            if match.id == api_match["id"]:
+                # Save match in DB
+                self.save_match(api_match)
+                # Update predictions
+                predictions = Prediction.objects.filter(match=match)
+                if len(predictions) > 0:
+                    for prediction in predictions:
+                        new_score = self.calculatePredictionScore(prediction)
+                        prediction.score = new_score
+                        prediction.save()
+                        try:
+                            # Update user profile
+                            user_profile = UserProfile.objects.get(user=prediction.user)
+                            if user_profile is not None:
+                                user_profile.score = user_profile.score + new_score
+                                user_profile.save()
+                            else:
+                                print("User profile not found!")
+                        except ObjectDoesNotExist:
+                            print("User profile not found!")
     
 
     def save_match(self, match):
@@ -164,54 +210,8 @@ class SyncService:
             print(f" Match updated: {id}")
 
 
-    def sync_matches_wrapper(self, task_id, date_from, date_to):
-        task = ScheduledTask.objects.get(id=task_id)
-        task.attempt += 1
-        task.updated_at = timezone.now()
-        task.save()
-
-        try:
-            self.sync_matches(date_from, date_to)
-
-            task.status = 'done'
-            task.save()
-
-        except Exception as e:
-            print(f"Task {task.name} failed: {e}")
-            task.save()
-
-
-    def schedule_pending_tasks(self):
-        now = timezone.now()
-        pending_tasks = ScheduledTask.objects.filter(status='scheduled')
-
-        for task in pending_tasks:
-            run_time = task.run_at
-            payload = task.payload or {}  # assuming payload has dateFrom and dateTo
-
-            date_from = payload.get('dateFrom')
-            date_to = payload.get('dateTo')
-
-            if not date_from or not date_to:
-                print(f"Task {task.id} missing required parameters. Skipping.")
-                continue
-
-            if run_time <= now:
-                # If the time already passed, execute immediately
-                self.sync_matches_wrapper(task.id, date_from, date_to)
-            else:
-                # Schedule for future
-                self.scheduler.add_job(
-                    self.sync_matches_wrapper,
-                    'date',
-                    run_date=run_time,
-                    args=[task.id, date_from, date_to]
-                )
-
-        self.scheduler.start()
-    
-
-    def update_standings(self, standings):
+    def update_standings(self):
+        standings = self.api_client.fetch_standings()
         season = Season.objects.latest("start_date")  
 
         Standing.objects.filter(season=season).delete()
@@ -236,3 +236,40 @@ class SyncService:
             )
         
         print(f"{len(standings)} Standings updated!")
+
+    
+    def create_scheduled_tasks(self):
+        unfinished_matches = Match.objects.filter(
+            status__in=['TIMED', 'SCHEDULED']
+        ).order_by('utc_date')
+        schedules = []
+
+        should_sync = False
+
+        for match in unfinished_matches:
+            # the third party free plan has some delays for updating data
+            time_plus_delay = match.utc_date + timedelta(hours=24)
+            now_utc = datetime.now(timezone.utc)
+
+            if time_plus_delay < now_utc:
+                should_sync = True
+                # filter similar dates
+            elif match.utc_date not in schedules:
+                schedules.append(match.utc_date)
+                self.scheduler.add_job(
+                    self.run_sync,
+                    'date',
+                    run_date=match.utc_date + timedelta(hours=24),
+                    args=[2024],
+                )
+                break
+        
+        jobs = self.scheduler.get_jobs()
+        print(f"jobs: {len(jobs)}")
+        for job in jobs:
+            print(job)
+
+        self.scheduler.start()
+        
+        if should_sync:
+            self.run_sync(season_year=2024)

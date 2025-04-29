@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Team, Season, Match, Player, Standing, Prediction, UserProfile, ScheduledTask, Comment
+from .models import Team, Season, Match, Player, Standing, Prediction, UserProfile, Comment
 
 admin.site.register(Team)
 admin.site.register(Season)
@@ -8,7 +8,6 @@ admin.site.register(Player)
 admin.site.register(Standing)
 admin.site.register(Prediction)
 admin.site.register(UserProfile)
-admin.site.register(ScheduledTask)
 admin.site.register(Comment)
 
 
