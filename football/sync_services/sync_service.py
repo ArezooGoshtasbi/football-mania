@@ -6,7 +6,7 @@ from football.sync_services.api_client import ApiClient
 from django.core.exceptions import ObjectDoesNotExist
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 
-from football.types import CURRENT_SEASON, PredictionStatus
+from football.constants import CURRENT_SEASON, PredictionStatus
 
 def job_listener(event):
     if event.exception:
