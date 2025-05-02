@@ -10,9 +10,9 @@ from django.urls import reverse
 from django.db.models import Sum, Q
 import json
 
-from football.sync_services.seed_service import SeedService
+from football.services.seed_service import SeedService
 from .models import Team, Standing, Match, Prediction, UserProfile, Comment
-from football.sync_services.sync_service import SyncService
+from football.services.sync_service import SyncService
 from datetime import timedelta
 from django.utils import timezone
 from django.core.paginator import Paginator

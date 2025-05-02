@@ -2,11 +2,12 @@ from datetime import datetime, timedelta
 from football.models import Prediction, Team, Season, Player, Standing, Match, UserProfile
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timezone
-from football.sync_services.api_client import ApiClient
+from football.services.api_client import ApiClient
 from django.core.exceptions import ObjectDoesNotExist
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 
-from football.constants import CURRENT_SEASON, PredictionStatus
+from football.constants import CURRENT_SEASON
+from football.types import PredictionStatus
 
 def job_listener(event):
     if event.exception:

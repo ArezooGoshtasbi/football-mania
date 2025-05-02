@@ -1,10 +1,10 @@
-from football.sync_services.api_client import ApiClient
+from football.services.api_client import ApiClient
 import os
 import json
 from django.conf import settings
 from datetime import datetime
 from football.models import Team, Season, Standing
-from football.sync_services.sync_service import SyncService
+from football.services.sync_service import SyncService
 from football.constants import CURRENT_SEASON
 
 
