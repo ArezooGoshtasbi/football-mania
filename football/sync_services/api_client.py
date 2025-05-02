@@ -30,7 +30,7 @@ class ApiClient:
 
 
     def fetch_all_matches(self, season_year):
-        print(f"⚽ Fetching La Liga {season_year} matches...")
+        print(f"Fetching La Liga {season_year} matches...")
         url = BASE_URL + f"/competitions/PD/matches?season={season_year}"
 
         response = requests.get(url, headers=HEADERS)
@@ -39,7 +39,7 @@ class ApiClient:
             matches = data.get("matches", [])
             return matches
         else:
-            print(f"❌ Failed with status {response.status_code}")
+            print(f"Failed with status {response.status_code}")
             return None
     
 
