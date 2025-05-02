@@ -6,7 +6,7 @@ from football.sync_services.api_client import ApiClient
 from django.core.exceptions import ObjectDoesNotExist
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 
-from football.types import PredictionStatus
+from football.types import CURRENT_SEASON, PredictionStatus
 
 def job_listener(event):
     if event.exception:
@@ -260,7 +260,7 @@ class SyncService:
                     self.run_sync,
                     'date',
                     run_date=match.utc_date + timedelta(hours=24),
-                    args=[2024],
+                    args=[CURRENT_SEASON],
                 )
                 break
         
@@ -272,4 +272,4 @@ class SyncService:
         self.scheduler.start()
         
         if should_sync:
-            self.run_sync(season_year=2024)
+            self.run_sync(season_year=CURRENT_SEASON)

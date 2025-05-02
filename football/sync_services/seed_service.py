@@ -5,6 +5,7 @@ from django.conf import settings
 from datetime import datetime
 from football.models import Team, Season, Standing
 from football.sync_services.sync_service import SyncService
+from football.types import CURRENT_SEASON
 
 
 class SeedService:
@@ -34,7 +35,7 @@ class SeedService:
 
     
     def fetch_and_save_matches_to_file(self):
-        season_year = 2024
+        season_year = CURRENT_SEASON
         all_matches = self.api_client.fetch_all_matches(season_year)
 
         for m in all_matches:
