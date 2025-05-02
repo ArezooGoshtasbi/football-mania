@@ -122,24 +122,6 @@ def team(request):
     return JsonResponse(list(teams), safe=False)
 
 
-# TODO needs admin user
-@csrf_exempt
-@require_http_methods(["POST"])
-def create_seed(request):
-    seed_service = SeedService()
-    seed_service.create_seed_files()
-    return HttpResponse("Seed files were created!")
-
-
-# TODO needs admin user
-@csrf_exempt
-@require_http_methods(["POST"])
-def load_seed(request):
-    seed_service = SeedService()
-    seed_service.load_seed_files()
-    return HttpResponse("Season was created successfully.")
-
-
 @login_required
 def predict_match(request, match_id):
     match = Match.objects.get(id=match_id)

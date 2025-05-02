@@ -3,7 +3,7 @@ import os
 import json
 from django.conf import settings
 from datetime import datetime
-from football.models import Team, Season, Standing, Match
+from football.models import Team, Season, Standing
 from football.sync_services.sync_service import SyncService
 
 
