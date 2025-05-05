@@ -18,14 +18,19 @@ The system was designed to work independently, even if the third-party service i
 Another module (seed_service.py) handles the initial loading and structuring of data. A third service (api_client.py) manages rate-limited requests and handles API communication.
 The API has usage limits—such as 10 requests per minute—and delays in updating match results. To manage this, the app uses APScheduler to delay post-match sync tasks by 24 hours, helping avoid request limit issues.
 
+⚠️ **Note on Real-Time Data Availability:**
+
+This project uses live football data from the official [football-data.org](https://www.football-data.org) API. If the La Liga season has ended at the time of grading, there may be no upcoming matches displayed on the homepage, and the prediction form may be unavailable. This is expected behavior due to the reliance on real-world seasonal data. All other key features—including user profile, prediction history, leaderboard, form charts, and mini chat—remain fully functional for evaluation purposes.
+
+
 ## Features
 * Users can register, log in, and see their personal profile.
 * Upcoming La Liga matches are displayed, with details like teams and kickoff time.
 * A dynamic La Liga standings table on the homepage shows team rankings, last 5 results, top 4 (UCL), and bottom 3 (relegation) teams, all with color and icon indicators.
-* Users can predict the score of any upcoming match up to 2 hours before kickoff.
+* Users can predict the score of any upcoming match them up to 2 hours before kickoff.
 * Users can edit their predictions (if allowed) through a modal form without reloading the page.
 * Predictions are automatically scored after the match ends, based on actual results. Each prediction is labeled as Perfect, Correct, Partial, or Incorrect based on its accuracy.
-* A dynamic leaderboard shows top users based on total points and prediction accuracy. Users can sort and search through the leaderboard table.
+* A dynamic leaderboard shows top users based on total points and prediction accuracy. User can sort and search through the items of the table.
 * A fun and lightweight "Mini Chat" on the leaderboard page allows users to post short comments and cheer each other on.
 * User profiles show prediction history, scores, and detailed stats with emojis and color labels. Pagination and filtering make long prediction tables easy to explore.
 * Form charts display the full season match results, goals scored and conceded for top 4 teams visually.
