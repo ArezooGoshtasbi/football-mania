@@ -127,7 +127,7 @@ All team and match data is retrieved from a live football API and saved to the d
     ```
     Then run the below lines:
     ```
-    from football.sync_services.seed_service import SeedService
+    from football.services.seed_service import SeedService
     seed_service = SeedService()
     seed_service.load_seed_files()
     ```
