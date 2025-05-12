@@ -1,0 +1,22 @@
+{% extends "football/layout.html" %}
+{% load static %}
+
+{% block title %}Team Form Chart{% endblock %}
+{% block body %}
+    <div class="goals-bar-chart-wrapper">
+        <h2> Top 4 Teams - Goals Scored vs Conceded</h2>
+        <canvas id="goalsChart"></canvas>
+    </div>
+    <div class="match-result-section">
+        <h2>Top 4 Teams - Full Season Match Results</h2>
+        <div class="team-pie-charts">
+          <div class="pie-charts-wrapper">
+            <div class="team-doughnuts" id="team-doughnuts">
+            </div>
+          </div>     
+        </div>
+      </div>
+            
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'football/js/form_chart.js' %}"></script>
+{% endblock %}

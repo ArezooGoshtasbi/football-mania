@@ -1,0 +1,93 @@
+{% extends "football/layout.html" %}
+{% load static %}
+
+{% block body %}
+  <div class="ranking-chat-wrapper">
+    <section class="user-ranking-section">
+      <h2>🏆 User Ranking</h2>
+      <div class="status-overview">
+        <div class="stat-item">🧍 Total Users: <strong>{{ total_users }}</strong></div>
+        <div class="stat-item">🎯 Total Predictions: <strong>{{ total_predictions }}</strong></div>
+        <div class="stat-item">👑 Highest Score: 
+          {% if top_user %}
+            <strong>{{ top_user.username }}</strong>
+          {% else %}
+            <strong>-</strong>
+          {% endif %}
+        </div>
+        <div class="stat-item">🔥 Most Accurate: <strong>{{ top_accuracy.username }} ({{ top_accuracy.accuracy }}%)</strong></div>
+      </div>
+     <div class="user-ranking-table-wrapper">
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Search by username... 🔍">
+      </div>
+        <table class="user-ranking-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Username</th>
+                    <th id="sort-score">
+                      Score <span id="sort-icon">⇅</span>
+                    </th>
+                    <th>Predictions</th>
+                    <th>Performance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in ranking_data %}
+                    <tr class="{% if user.is_current_user %}highlight{% endif %}">
+                        <td>
+                            {% if user.rank == 1 %}
+                                🥇
+                            {% elif user.rank == 2 %}
+                                🥈
+                            {% elif user.rank == 3 %}
+                                🥉
+                            {% else %}
+                                {{ user.rank }}
+                            {% endif %}
+                        </td>
+                        <td class="username">{{ user.username }}</td>
+                        <td>{{ user.score }}</td>
+                        <td class="prediction-count">{{ user.total_finished }}</td>
+                        <td>
+                          <div class="progress-bar">
+                            {% if user.performance == 0 %}
+                              <div class="progress-inner progress-zero">0%</div>
+                            {% else %}
+                              <div class="progress-inner
+                                {% if user.performance >= 70 %}progress-green
+                                {% elif user.performance >= 40 %}progress-yellow
+                                {% else %}progress-red
+                                {% endif %}"
+                                style="width: {{ user.performance }}%">
+                                {{ user.performance }}%
+                              </div>
+                            {% endif %}
+                          </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+     </div>
+    </section>
+    <section class="mini-chat-section">
+      <div class="chat-box" id="mini-chat">
+        <h2>💬 Mini Chat</h2>
+        <div id="chat-messages" class="chat-messages"></div>
+        {% if user.is_authenticated %}
+          <form id="chat-form">
+            <textarea id="chat-input" rows="2" placeholder="Type your message..."></textarea>
+            <button type="submit">Send</button>
+          </form>
+        {% else %}
+          <p>You must be logged in to send messages.</p>  
+        {% endif %}  
+       </div>
+    </section>
+  </div>
+  <script src="{% static 'football/js/mini_chat.js' %}"></script> 
+  <script src="{% static 'football/js/user_ranking.js' %}"></script> 
+
+{% endblock %}

@@ -1,0 +1,81 @@
+.goals-bar-chart-wrapper {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background: linear-gradient(to right, #f9f9f9, #ffffff);
+  border-radius: 18px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.goals-bar-chart-wrapper h2 {
+  font-size: 1.6rem;
+  color: #2e7d32;
+  margin-bottom: 20px;
+}
+
+#goalsChart {
+  width: 100%;
+  height: auto;
+}
+
+.match-result-section {
+  margin-top: 50px;
+  text-align: center;
+}
+
+.team-pie-charts {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.pie-charts-wrapper {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.match-result-section h2 {
+  font-size: 1.6rem;
+  color: #2e7d32;
+  margin-bottom: 20px;
+}
+
+.team-doughnuts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.team-doughnut {
+  width: 250px;
+  background: linear-gradient(to right, #f0f9f4, #ffffff);
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(50, 150, 100, 0.1);
+}
+
+@media (max-width: 768px) {
+  .goals-bar-chart-wrapper {
+    padding: 20px;
+    margin: 20px 10px;
+  }
+
+  .goals-bar-chart-wrapper h2,
+  .match-result-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .team-doughnut {
+    width: 90%;
+    max-width: 300px;
+    margin: 10px auto;
+  }
+
+  .team-doughnuts {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+}  

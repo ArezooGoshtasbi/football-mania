@@ -1,0 +1,144 @@
+{% extends "football/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <section class="profile-section">
+        <h2>{{user.username}}'s Profile</h2>
+        <div class="profile-card">
+            <h3>User Info</h3>
+            <ul>
+                <li><strong>Username:</strong> {{user.username}}</li>
+                <li><strong>Email:</strong> {{user.email}}</li>
+                <li><strong>Member:</strong> {{ user.date_joined|date:"F j, Y" }}</li>
+                <li><strong>Total Predictions:</strong> {{ total_predictions }}</li>
+            </ul>
+        </div>
+        <div class="profile-card">
+            <h3>Prediction Stats</h3>
+            <ul>
+                <li><strong>Total Score:</strong> {{ user_score }}</li>
+                <li><strong>Perfect Predictions (5 pts):</strong> {{ perfect_predictions }}</li>
+                <li><strong>Correct Result (3 pts):</strong> {{ correct_result }}</li>
+                <li><strong>Partial (1-2 pts):</strong> {{ partially_correct }}</li>
+                <li><strong>Incorrect Predictions:</strong> {{ incorrect_predictions }}</li>
+                <li><strong>Success Rate:</strong> {{ success_rate }}%</li>
+              </ul>              
+        </div>
+        <div class="profile-card">
+            <h3>Prediction History</h3>
+            {% if has_predictions %}
+                 <a id="predictions"></a>
+                <table class="prediction-table">
+                    <thead>
+                        <tr>
+                            <th>Match</th>
+                            <th>Date</th>
+                            <th>Your Prediction</th>
+                            <th>Result</th>
+                            <th>Points</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in predictions %}
+                            <tr>
+                                <td>{{ p.match.home_team.short_name }} <strong>vs</strong> {{ p.match.away_team.short_name }}</td>
+                                <td>{{ p.match.utc_date|date:"M d, H:i" }}</td>
+                                <td class="prediction-cell-{{ p.id }}">
+                                    {{ p.home_goals }} - {{ p.away_goals }}
+                                    {% if p.match.status != "FINISHED" %}
+                                    <button class="btn btn-sm btn-link edit-btn" 
+                                        data-id="{{ p.id }}" 
+                                        data-home="{{ p.home_goals }}" 
+                                        data-away="{{ p.away_goals }}" 
+                                        data-result="{{ p.result }}">
+                                        ✏️
+                                  </button>
+                                  
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if p.match.home_score != None and p.match.away_score != None %}
+                                        {{ p.match.home_score }} - {{ p.match.away_score }}
+                                     {% else %}
+                                        Not Played
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if p.match.status == "FINISHED" %}
+                                       ⭐ {{ p.score }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if p.match.status != "FINISHED" %}
+                                      <span class="status-pending">⏳ Waiting Result</span>
+                                    {% elif p.score == 5 %}
+                                      <span class="status-perfect">🎯 Perfect</span>
+                                    {% elif p.score == 4 or p.score == 3 %}
+                                      <span class="status-correct">✔️ Correct</span>
+                                    {% elif p.score == 2 or p.score == 1 %}
+                                      <span class="status-partial">⚠️ Partial</span>
+                                    {% else %}
+                                      <span class="status-wrong">❌ Incorrect</span>
+                                    {% endif %}
+                                  </td>                                  
+                            </tr>
+                            {% endfor %}
+                    </tbody>
+                </table>
+                <div class="pagination-wrapper">
+                    <div class="pagination">
+                      {% if predictions.has_previous %}
+                        <a href="?page={{ predictions.previous_page_number }}#predictions" class="page-btn">Previous</a>
+                      {% endif %}
+                  
+                      <span class="page-info">Page {{ predictions.number }} of {{ predictions.paginator.num_pages }}</span>
+                  
+                      {% if predictions.has_next %}
+                        <a href="?page={{ predictions.next_page_number }}#predictions" class="page-btn">Next</a>
+                      {% endif %}
+                    </div>
+                </div> 
+            {% else %}      
+                <p>No predictions yet.</p>
+            {% endif %}    
+        </div>
+    </section>
+    <div class="modal fade" id="editPredictionModal" tabindex="-1" role="dialog" aria-labelledby="editPredictionModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPredictionModalLabel">Edit Prediction</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPredictionForm">
+                        <input type="hidden" id="predictionId" name="predictionId">
+                        <div class="form-group">
+                            <label for="result">Choose the match result:</label>
+                            <select class="form-control" id="result" name="result" required>
+                              <option value="HOME">Home Win</option>
+                              <option value="DRAW">Draw</option>
+                              <option value="AWAY">Away Win</option>
+                            </select>
+                          </div>                          
+                        <div class="form-group">
+                            <label for="homeScore">Home Team Score</label>
+                            <input type="number" class="form-control" id="homeScore" name="home_score" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="awayScore">Away Team Score</label>
+                            <input type="number" class="form-control" id="awayScore" name="away_score" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'football/js/edit_prediction.js' %}"></script>
+{% endblock %}

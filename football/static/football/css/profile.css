@@ -1,0 +1,174 @@
+.profile-section {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.profile-section h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.profile-card {
+    background: #f7f9fc;
+    border: 1px solid #e1e4ea;
+    border-top: 5px solid #116611;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.profile-card h3 {
+    color: #116611;
+    font-weight: bold;
+}
+
+.profile-card ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.profile-card li {
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #555;
+}
+
+.highlight-green {
+    color: #116611;
+    font-weight: bold;
+}
+
+.profile-card.highlight {
+    background-color: #e6f4ea;
+}
+
+.profile-card li strong {
+    color: #116611;
+}
+
+.prediction-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.prediction-table th, .prediction-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.prediction-table th {
+    background-color: #116611;
+    color: white;
+    font-weight: bold;
+}
+
+.prediction-table td {
+    background-color: #fafafa;
+}
+
+.status-perfect {
+    color: #116611;
+    font-weight: bold;
+    padding: 4px 10px;
+}
+
+.status-correct {
+    color: #2e7d32;
+    font-weight: bold;
+    padding: 4px 10px;
+}
+
+.status-partial {
+    color: #856404;
+    font-weight: bold;
+    padding: 4px 10px;
+}
+
+.status-wrong {
+    color: #721c24;
+    font-weight: bold;
+    padding: 4px 10px;
+}
+
+.status-pending {
+    color: #5e35b1;
+    font-weight: bold;
+    padding: 4px 10px;
+  }
+.pagination-wrapper {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 15px; 
+    flex-wrap: wrap;
+}
+  
+.page-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #006400;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+  
+.page-btn:hover {
+    background-color: #228B22;
+    color: white;
+    text-decoration: none;
+}
+  
+.page-info {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333333;
+}
+
+  
+@media (max-width: 768px) {
+    .profile-section {
+        padding: 10px;
+        margin: 20px 10px;
+    }
+
+    .profile-card {
+        padding: 15px;
+    }
+
+    .profile-card li {
+        font-size: 14px;
+    }
+
+    .prediction-table {
+        font-size: 12px;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .prediction-table th,
+    .prediction-table td {
+        padding: 8px;
+    }
+}
